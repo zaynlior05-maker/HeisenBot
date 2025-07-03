@@ -1,0 +1,142 @@
+{
+  "us": {
+    "count": 1250,
+    "samples": [
+      {
+        "state": "CA",
+        "zip": "90210",
+        "bank": "Bank of America",
+        "quality": "Premium"
+      },
+      {
+        "state": "NY",
+        "zip": "10001",
+        "bank": "Chase",
+        "quality": "Standard"
+      },
+      {
+        "state": "TX",
+        "zip": "75001",
+        "bank": "Wells Fargo",
+        "quality": "Premium"
+      },
+      {
+        "state": "FL",
+        "zip": "33101",
+        "bank": "Citi",
+        "quality": "VIP"
+      },
+      {
+        "state": "IL",
+        "zip": "60601",
+        "bank": "US Bank",
+        "quality": "Standard"
+      }
+    ]
+  },
+  "uk": {
+    "count": 850,
+    "samples": [
+      {
+        "region": "London",
+        "postcode": "SW1A",
+        "bank": "Barclays",
+        "quality": "Premium"
+      },
+      {
+        "region": "Manchester",
+        "postcode": "M1",
+        "bank": "HSBC",
+        "quality": "Standard"
+      },
+      {
+        "region": "Birmingham",
+        "postcode": "B1",
+        "bank": "Lloyds",
+        "quality": "VIP"
+      },
+      {
+        "region": "Leeds",
+        "postcode": "LS1",
+        "bank": "NatWest",
+        "quality": "Premium"
+      },
+      {
+        "region": "Glasgow",
+        "postcode": "G1",
+        "bank": "RBS",
+        "quality": "Standard"
+      }
+    ]
+  },
+  "ca": {
+    "count": 650,
+    "samples": [
+      {
+        "province": "ON",
+        "postal": "M5V",
+        "bank": "TD Bank",
+        "quality": "Premium"
+      },
+      {
+        "province": "BC",
+        "postal": "V6B",
+        "bank": "RBC",
+        "quality": "Standard"
+      },
+      {
+        "province": "AB",
+        "postal": "T2P",
+        "bank": "BMO",
+        "quality": "VIP"
+      },
+      {
+        "province": "QC",
+        "postal": "H2Y",
+        "bank": "Scotia",
+        "quality": "Premium"
+      },
+      {
+        "province": "NS",
+        "postal": "B3H",
+        "bank": "CIBC",
+        "quality": "Standard"
+      }
+    ]
+  },
+  "au": {
+    "count": 450,
+    "samples": [
+      {
+        "state": "NSW",
+        "postcode": "2000",
+        "bank": "CBA",
+        "quality": "Premium"
+      },
+      {
+        "state": "VIC",
+        "postcode": "3000",
+        "bank": "ANZ",
+        "quality": "Standard"
+      },
+      {
+        "state": "QLD",
+        "postcode": "4000",
+        "bank": "Westpac",
+        "quality": "VIP"
+      },
+      {
+        "state": "WA",
+        "postcode": "6000",
+        "bank": "NAB",
+        "quality": "Premium"
+      },
+      {
+        "state": "SA",
+        "postcode": "5000",
+        "bank": "Bendigo",
+        "quality": "Standard"
+      }
+    ]
+  }
+}

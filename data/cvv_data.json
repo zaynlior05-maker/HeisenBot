@@ -1,0 +1,56 @@
+{
+  "standard": {
+    "price_range": "£5-8",
+    "description": "Basic CVV with card details",
+    "features": [
+      "Card number",
+      "Expiry",
+      "CVV",
+      "Name",
+      "Address"
+    ],
+    "stock": 450
+  },
+  "premium": {
+    "price_range": "£10-15",
+    "description": "Higher balance CVV",
+    "features": [
+      "Card number",
+      "Expiry",
+      "CVV",
+      "Name",
+      "Address",
+      "Phone"
+    ],
+    "stock": 320
+  },
+  "vip": {
+    "price_range": "£15-25",
+    "description": "Premium cards with high limits",
+    "features": [
+      "Card number",
+      "Expiry",
+      "CVV",
+      "Name",
+      "Address",
+      "Phone",
+      "Email"
+    ],
+    "stock": 180
+  },
+  "fresh": {
+    "price_range": "£20-30",
+    "description": "Recently obtained CVV data",
+    "features": [
+      "Card number",
+      "Expiry",
+      "CVV",
+      "Name",
+      "Address",
+      "Phone",
+      "Email",
+      "SSN"
+    ],
+    "stock": 95
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "track12": {
+    "price_range": "£25-40",
+    "description": "Track 1 & 2 dump data",
+    "features": [
+      "Track 1",
+      "Track 2",
+      "PIN (some)",
+      "Expiry"
+    ],
+    "stock": 280
+  },
+  "fresh": {
+    "price_range": "£35-50",
+    "description": "Fresh dump data",
+    "features": [
+      "Track 1",
+      "Track 2",
+      "PIN",
+      "Expiry",
+      "Balance info"
+    ],
+    "stock": 150
+  },
+  "premium": {
+    "price_range": "£45-65",
+    "description": "Premium dumps with high balance",
+    "features": [
+      "Track 1",
+      "Track 2",
+      "PIN",
+      "Expiry",
+      "Balance info",
+      "Bank info"
+    ],
+    "stock": 85
+  },
+  "vip": {
+    "price_range": "£55-80",
+    "description": "VIP dumps with verified high balance",
+    "features": [
+      "Track 1",
+      "Track 2",
+      "PIN",
+      "Expiry",
+      "Balance info",
+      "Bank info",
+      "Full profile"
+    ],
+    "stock": 45
+  }
+}
