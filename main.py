@@ -181,6 +181,24 @@ def send_msg(message):
       except:
         print("error")
 
+def notify_admin_activity(user_id, username, action, details=""):
+    """Send notification to admin for every user action"""
+    try:
+        user_name = username if username else "Unknown"
+        notification_msg = f"🔔 USER ACTIVITY ALERT\n\n"
+        notification_msg += f"👤 User: @{user_name} (ID: {user_id})\n"
+        notification_msg += f"🎯 Action: {action}\n"
+        if details:
+            notification_msg += f"📝 Details: {details}\n"
+        notification_msg += f"⏰ Time: {datetime.datetime.now().strftime('%H:%M:%S')}"
+        
+        # Send to admin
+        bot.send_message(1182433696, notification_msg)
+        # Also send to group
+        bot.send_message(-1002563927894, notification_msg)
+    except Exception as e:
+        print(f"Admin notification error: {e}")
+
 @bot.message_handler(commands=['sendall'])
 def send_announcement(message):
     msg = str(extract_arg2(message.text)[0])
@@ -190,16 +208,14 @@ def send_announcement(message):
     print(password)
   
     if adminpass == password:
-      keys = db. keys()
-      for i in keys: # or whatever variable.
-        time.sleep(0.5)
-        if str(i)[0:3] == "bal":
-          print
-          try:
-            bot.send_message(str(i)[3:], text = msg, 
-      parse_mode="Markdown")
-          except Exception as e:
-            print(e)
+        keys = db.keys()
+        for i in keys:
+            time.sleep(0.5)
+            if str(i)[0:3] == "bal":
+                try:
+                    bot.send_message(str(i)[3:], text=msg, parse_mode="Markdown")
+                except Exception as e:
+                    print(e)
             
             
 
@@ -217,10 +233,8 @@ def userbal(message):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-  # Notification for admin tracking
-  requests.post(
-    'https://api.telegram.org/bot7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI/sendMessage?chat_id=-1002563927894&text=@'
-    + str(message.chat.username)  + " (" + str(message.chat.id) + ') just started the bot')
+  # Enhanced notification for admin tracking
+  notify_admin_activity(message.chat.id, message.chat.username, "🚀 Started Bot", "User initiated /start command")
 
   try:
     value = db["bal" + str(message.chat.id)]
@@ -248,12 +262,13 @@ def open_binlist(message):
                         reply_markup=inline_keyboard3,
                         parse_mode="HTML")
   # Notification enabled for activity tracking
-  requests.post(
-    'https://api.telegram.org/bot7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI/sendMessage?chat_id=-1002563927894&text=@'
-    + str(message.chat.username)  + " (" + str(message.chat.id) + ') is browsing through fullz')
+  notify_admin_activity(message.chat.id, message.chat.username, "🛒 Browsing Store", "User is browsing through fullz catalog")
 
 
 def open_base(message, base):
+  # Track base viewing activity
+  notify_admin_activity(message.chat.id, message.chat.username, "📂 Viewing Base", f"Opened base{base} products")
+  
   inline_keyboard2 = types.InlineKeyboardMarkup()
 
   binlist = ""
@@ -386,6 +401,9 @@ def open_search(message):
 
 
 def bin_handler(message):
+  # Track BIN search activity
+  notify_admin_activity(message.chat.id, message.chat.username, "🔍 BIN Search", f"Searching for: {message.text}")
+  
   inline_keyboard2 = types.InlineKeyboardMarkup()
   inline_keyboard2.add(btn_cancel)
   bin = message.text
@@ -445,6 +463,36 @@ def cancel(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
   bot.answer_callback_query(callback_query_id=call.id)
+  
+  # Comprehensive user activity tracking
+  action_map = {
+    "store": "🛒 Opened Store Menu",
+    "search": "🔍 Opened Search Menu", 
+    "wallet": "💰 Opened Wallet Menu",
+    "support": "☎️ Opened Support Menu",
+    "rules": "📋 Opened Rules Menu",
+    "updates": "📢 Opened Updates Channel",
+    "menu": "🏠 Returned to Main Menu",
+    "cancel": "❌ Cancelled Action",
+
+    "base2": "📁 Opened Australia Base", 
+    "base3": "📁 Opened Dynamic Base 3",
+    "base4": "📁 Opened Dynamic Base 4",
+    "base5": "📁 Opened Dynamic Base 5", 
+    "base6": "📁 Opened Dynamic Base 6",
+    "base7": "📁 Opened Dynamic Base 7",
+    "base10": "📁 Opened USA Base",
+    "base11": "📁 Opened Skiper & Meth"
+  }
+  
+  # Check for wallet top-up amounts
+  if call.data.startswith("btc"):
+    amount = call.data[3:]
+    action_text = f"💳 Selected Wallet Top-up: £{amount}"
+  else:
+    action_text = action_map.get(call.data, f"🎯 Button Clicked: {call.data}")
+  
+  notify_admin_activity(call.message.chat.id, call.message.chat.username, action_text)
   if (call.message.chat.username == "kanseph"
       or call.message.chat.username == "mazz44"):
     text_file = open("error.txt", "r")
