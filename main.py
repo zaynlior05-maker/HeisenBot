@@ -731,15 +731,22 @@ if __name__ == '__main__':
     # Force polling mode only - resolve conflicts
     print("🚀 Starting Heisenberg Store Bot in polling mode...")
     
-    # Clean up any existing connections
+    # Clean up any existing connections - force delete webhook
     try:
-        bot.remove_webhook(drop_pending_updates=True)
+        bot.delete_webhook()
+        print("✓ Webhook deleted successfully")
+    except Exception as e:
+        print(f"⚠️ Webhook deletion: {e}")
+    
+    # Additional cleanup attempt
+    try:
+        bot.remove_webhook()
         print("✓ Webhook removed successfully")
     except Exception as e:
         print(f"⚠️ Webhook removal: {e}")
     
-    # Wait for Telegram API to clear
-    time.sleep(3)
+    # Wait longer for Telegram API to clear
+    time.sleep(5)
     
     # Start with robust error handling
     retry_attempts = 0
