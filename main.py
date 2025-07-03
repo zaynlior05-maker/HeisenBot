@@ -31,6 +31,9 @@ block_io = BlockIo('83f2-1837-d7b3-096c', 'dEmG9a2eGmr5Tm2t', version)
 b = BtcConverter()
 bot = telebot.TeleBot(API_KEY_001, parse_mode=None)
 
+# Global cache for search results
+search_results_cache = []
+
 # Store Rules and Terms
 STORE_RULES = """🏪 HEISENBERG STORE - TERMS & CONDITIONS 🏪
 
@@ -145,6 +148,13 @@ with open(merged_file_path, "w") as merged_file:
                     fullz_path = os.path.join(base_path, fullz_file)
                     with open(fullz_path, "r") as fullz:
                         merged_file.write(fullz.read() + "\n")
+
+def get_user_balance(user_id):
+    """Get user's wallet balance"""
+    try:
+        return float(db.get("bal" + str(user_id), 0))
+    except:
+        return 0.0
 
 @bot.message_handler(commands=['send'])
 def send_msg(message):
@@ -1522,29 +1532,40 @@ def handle_bin_search_results(call):
     inline_keyboard2 = types.InlineKeyboardMarkup()
     
     if results:
-        # Limit to first 15 results for better display
-        display_results = results[:15]
+        # Limit to first 10 results for better display
+        display_results = results[:10]
         
         for i, result in enumerate(display_results):
-            # Create short display text for button
+            # Create display text for button with purchase option
             parts = result['data'].split('|')
             if len(parts) >= 4:
                 bin_num = parts[0]
-                name = parts[3]
-                short_text = f"{bin_num} - {name[:15]}... - {result['price']}"
+                name = parts[3][:12]
+                button_text = f"💳 {bin_num} - {name}... - {result['price']} - BUY"
             else:
-                short_text = f"{result['data'][:30]}... - {result['price']}"
+                button_text = f"💳 {result['data'][:25]}... - {result['price']} - BUY"
             
-            btn = types.InlineKeyboardButton(short_text, callback_data=f'binshow_{i}')
+            # Create callback data for purchase
+            if result['base'] == "Heisen_Uk_Fresh_Base":
+                callback_data = f'uk_purchase_{i}_search'
+            elif result['base'] == "Heisen_Aus_Fresh_Base":
+                callback_data = f'aus_purchase_{i}_search'
+            elif result['base'] == "Heisen_10_Base":
+                callback_data = f'gbp10_purchase_{i}_search'
+            else:
+                callback_data = f'purchase_{i}_search'
+            
+            btn = types.InlineKeyboardButton(button_text, callback_data=callback_data)
             inline_keyboard2.add(btn)
         
         result_text = f"🔍 **Search Results for BIN: {bin_prefix}**\n\n📊 **Found:** {len(results)} matches"
-        if len(results) > 15:
-            result_text += f" (showing first 15)"
-        result_text += f"\n\n**Click any result to view full details:**"
+        if len(results) > 10:
+            result_text += f" (showing first 10)"
+        result_text += f"\n\n**💳 Click any result to purchase instantly:**"
         
-        # Store results in a temporary way for callback handling
-        # For this implementation, we'll show them directly
+        # Store search results globally for purchase handling
+        global search_results_cache
+        search_results_cache = display_results
         
     else:
         result_text = f"🔍 **Search Results for BIN: {bin_prefix}**\n\n❌ **No matches found**\n\nTry a different BIN prefix."
@@ -1632,6 +1653,93 @@ def handle_custom_bin_search(message):
     
     # Log search activity
     notify_admin_activity(message.chat.id, message.chat.username, "🔍 Custom Search", f"'{search_query}' - {len(results)} results found")
+
+def handle_search_purchase(call):
+    """Handle purchase from search results"""
+    global search_results_cache
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Parse callback data
+    parts = call.data.split('_')
+    if len(parts) < 3:
+        bot.answer_callback_query(call.id, "❌ Invalid purchase data")
+        return
+    
+    try:
+        item_index = int(parts[2])
+        
+        # Check if we have cached results
+        if not search_results_cache or item_index >= len(search_results_cache):
+            bot.answer_callback_query(call.id, "❌ Search results expired. Please search again.")
+            return
+        
+        selected_item = search_results_cache[item_index]
+        base_name = selected_item['base']
+        price_str = selected_item['price'].replace('£', '')
+        price = float(price_str)
+        item_data = selected_item['data']
+        
+        # Check user balance
+        user_balance = get_user_balance(user_id)
+        
+        if user_balance < price:
+            bot.answer_callback_query(call.id, f"❌ Insufficient balance. Need £{price}, have £{user_balance}")
+            return
+        
+        # Deduct balance
+        new_balance = user_balance - price
+        db["bal" + str(user_id)] = new_balance
+        
+        # Send purchase confirmation with item details
+        purchase_message = f"""✅ **PURCHASE SUCCESSFUL**
+
+💳 **Item:** {item_data}
+🏷️ **Base:** {base_name}
+💰 **Price:** £{price}
+💳 **Remaining Balance:** £{new_balance}
+
+📦 **Your product will be delivered manually by admin within 24 hours.**
+
+⚠️ **Note:** Save this message as your purchase receipt."""
+        
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=purchase_message,
+            parse_mode="Markdown"
+        )
+        
+        # Notify admin with purchase details
+        admin_notification = f"""💰 **SEARCH PURCHASE ALERT**
+
+👤 **Customer:** @{username} (ID: {user_id})
+💳 **Item:** {item_data[:100]}...
+🏷️ **Base:** {base_name}
+💰 **Price:** £{price}
+💳 **User Balance:** £{new_balance}
+⏰ **Time:** {datetime.datetime.now().strftime('%H:%M:%S')}
+
+🚀 **ACTION REQUIRED:** Manual delivery needed"""
+        
+        # Send to admin and group
+        try:
+            bot.send_message(1182433696, admin_notification)
+            bot.send_message(-1002563927894, admin_notification)
+        except Exception as e:
+            print(f"Failed to notify admin: {e}")
+        
+        # Log purchase activity
+        notify_admin_activity(user_id, username, f"💰 Search Purchase", f"{base_name} - £{price} - {item_data[:50]}...")
+        
+        bot.answer_callback_query(call.id, f"✅ Purchase successful! £{price} deducted.")
+        
+    except (ValueError, IndexError) as e:
+        bot.answer_callback_query(call.id, "❌ Invalid purchase data")
+        print(f"Search purchase error: {e}")
+    except Exception as e:
+        bot.answer_callback_query(call.id, "❌ Purchase failed. Contact admin.")
+        print(f"Search purchase error: {e}")
 
 def handle_fullz_search(message):
     """Handle search functionality across all bases"""
@@ -1854,6 +1962,9 @@ def callback_query(call):
     elif call.data.startswith("binsearch_"):
         # Handle BIN search results
         handle_bin_search_results(call)
+    elif call.data.endswith("_search"):
+        # Handle search result purchases
+        handle_search_purchase(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:

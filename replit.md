@@ -99,6 +99,16 @@ The application is designed for deployment on Replit with the following characte
 
 ## Recent Changes
 
+### Instant Callback Purchase System (July 03, 2025)
+- Replaced text-only search results with interactive purchase buttons for immediate buying
+- BIN search results now display as callback buttons with "💳 BIN - Name... - PRICE - BUY" format
+- Implemented instant purchase workflow: tap button → balance check → purchase → confirmation
+- Added global search results caching system for seamless purchase processing
+- Purchase confirmations include full item details, price deduction, and remaining balance
+- Admin notifications for search purchases with complete item data and customer information
+- Integrated with existing balance management and notification systems
+- Users can purchase directly from search results without navigation to base menus
+
 ### Comprehensive Admin Control System (July 03, 2025)
 - Implemented complete admin notification interface with real-time user activity monitoring
 - Enhanced activity alerts include user balance, action details, timestamps, and direct admin commands
