@@ -294,22 +294,68 @@ def open_binlist(message):
 def open_base(message, base):
     notify_admin_activity(message.chat.id, message.chat.username, "📂 Viewing Base", f"Opened base{base} products")
     
-    inline_keyboard2 = types.InlineKeyboardMarkup()
-    
-    with open("base" + str(base) + "/fullz" + str(base) + ".txt") as file:
-        for line in file:
-            btn = types.InlineKeyboardButton(line.rstrip(), callback_data='fullz')
+    # Special handling for base11 (Skippers&Meth) with comprehensive BIN + Method menu
+    if base == "11":
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        
+        # Create product buttons with buy option
+        products = [
+            ("Domino's BIN + Method – £145 (Skips £250 ×3)", "skipper_1_145"),
+            ("Just Eat BIN + Method – £145 (Skips £200 ×4)", "skipper_2_145"),
+            ("Odeon BIN + Method – £250 (Skips £750 ×2)", "skipper_3_250"),
+            ("Nike BIN + Method – £300 (Skips £950 ×2)", "skipper_4_300"),
+            ("Foodhub BIN + Method – £145 (Skips £290 ×2)", "skipper_5_145"),
+            ("Pets at Home BIN + Method – £250 (Skips £350 ×2)", "skipper_6_250"),
+            ("Ola Cab App BIN + Method – £350 (Skips £850 ×2)", "skipper_7_350"),
+            ("Studio BIN + Method – £280 (Skips £350 ×5)", "skipper_8_280"),
+            ("Offspring BIN + Method – £300 (Skips £450 ×4)", "skipper_9_300"),
+            ("JD BIN + Method – £300 (Skips £550 ×3)", "skipper_10_300"),
+            ("Vans BIN + Method – £300 (Skips £950 ×2)", "skipper_11_300"),
+            ("Selfridges e-Gift BIN + Method – £250 (Skips £550 ×4)", "skipper_12_250"),
+            ("CDKeys BIN + Method – £350 (Skips £650 ×4)", "skipper_13_350"),
+            ("Co-op Grocery BIN + Method – £200 (Skips £750 ×2)", "skipper_14_200"),
+            ("Vue BIN + Method – £145", "skipper_15_145"),
+            ("PLT BIN + Method – £150", "skipper_16_150"),
+            ("Bolt BIN + Method – £300 (Skips £200–£300 ×6)", "skipper_17_300"),
+            ("Premier Inn BIN + Method – £300 (Skips £650–£700 ×3)", "skipper_18_300"),
+            ("Booking.com BIN + Method – £300 (Skips £650–£700 ×3)", "skipper_19_300"),
+            ("Footlocker BIN + Method – £350 (Skips £850 ×3)", "skipper_20_350"),
+            ("Adidas BIN + Method – £300 (Skips £500 ×4)", "skipper_21_300"),
+            ("Argos BIN + Method – £300 (Skips £550 ×4)", "skipper_22_300")
+        ]
+        
+        for product_name, callback_data in products:
+            btn = types.InlineKeyboardButton(f"🔸 {product_name}", callback_data=callback_data)
             inline_keyboard2.add(btn)
-    
-    inline_keyboard2.add(btn_prev)
-    inline_keyboard2.add(btn_menu)
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=message.message_id,
-        text="Buy the bin by clicking on it",
-        reply_markup=inline_keyboard2,
-        parse_mode="HTML"
-    )
+        
+        inline_keyboard2.add(btn_prev)
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=message.message_id,
+            text="💳 **Skippers&Meth - BIN + Method Products**\n\n🧾 **Auto Add – No OTP Needed**\n✅ All tested and verified\n\n**Select a product to purchase:**",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+    else:
+        # Original handling for other bases
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        
+        with open("base" + str(base) + "/fullz" + str(base) + ".txt") as file:
+            for line in file:
+                btn = types.InlineKeyboardButton(line.rstrip(), callback_data='fullz')
+                inline_keyboard2.add(btn)
+        
+        inline_keyboard2.add(btn_prev)
+        inline_keyboard2.add(btn_menu)
+        bot.edit_message_text(
+            chat_id=message.chat.id,
+            message_id=message.message_id,
+            text="Buy the bin by clicking on it",
+            reply_markup=inline_keyboard2,
+            parse_mode="HTML"
+        )
 
 def open_wallet(message):
     try:
@@ -394,6 +440,94 @@ def open_rules(message):
         reply_markup=inline_keyboard2,
         parse_mode="Markdown"
     )
+
+def handle_skipper_purchase(call):
+    """Handle purchase of skipper BIN + Method products"""
+    # Extract product info from callback data (skipper_X_price)
+    parts = call.data.split("_")
+    product_id = parts[1]
+    price = int(parts[2])
+    
+    # Product mapping for names and details
+    product_map = {
+        "1": ("Domino's BIN + Method", "Skips £250 ×3"),
+        "2": ("Just Eat BIN + Method", "Skips £200 ×4"),
+        "3": ("Odeon BIN + Method", "Skips £750 ×2 till bala"),
+        "4": ("Nike BIN + Method", "Skips £950 ×2 till bala"),
+        "5": ("Foodhub BIN + Method", "Skips £290 ×2"),
+        "6": ("Pets at Home BIN + Method", "Skips £350 ×2"),
+        "7": ("Ola Cab App BIN + Method", "Skips £850 ×2"),
+        "8": ("Studio BIN + Method", "Skips £350 ×5"),
+        "9": ("Offspring BIN + Method", "Skips £450 ×4"),
+        "10": ("JD BIN + Method", "Skips £550 ×3"),
+        "11": ("Vans BIN + Method", "Skips £950 ×2"),
+        "12": ("Selfridges e-Gift BIN + Method", "Skips £550 ×4"),
+        "13": ("CDKeys BIN + Method", "Skips £650 ×4"),
+        "14": ("Co-op Grocery BIN + Method", "Skips £750 ×2"),
+        "15": ("Vue BIN + Method", "Standard product"),
+        "16": ("PLT BIN + Method", "Standard product"),
+        "17": ("Bolt BIN + Method", "Skips £200–£300 ×6"),
+        "18": ("Premier Inn BIN + Method", "Skips £650–£700 ×3"),
+        "19": ("Booking.com BIN + Method", "Skips £650–£700 ×3"),
+        "20": ("Footlocker BIN + Method", "Skips £850 ×3"),
+        "21": ("Adidas BIN + Method", "Skips £500 ×4"),
+        "22": ("Argos BIN + Method", "Skips £550 ×4")
+    }
+    
+    product_name, skip_info = product_map.get(product_id, ("Unknown Product", ""))
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Check user balance
+    try:
+        current_balance = db["bal" + str(user_id)]
+    except:
+        current_balance = 0
+    
+    # Process purchase
+    if current_balance >= price:
+        # Deduct amount from balance
+        db["bal" + str(user_id)] = current_balance - price
+        new_balance = current_balance - price
+        
+        # Notify user of successful purchase
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"✅ **Purchase Successful!**\n\n🔸 **Product:** {product_name}\n💰 **Price:** £{price}\n📊 **Info:** {skip_info}\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+        
+        # Notify admin for manual delivery
+        admin_message = f"🔔 **NEW SKIPPER PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔸 **Product:** {product_name}\n💰 **Price:** £{price}\n📊 **Skip Info:** {skip_info}\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
+        
+        try:
+            bot.send_message(ADMIN_ID_001, admin_message, parse_mode="Markdown")
+            bot.send_message(GROUP_ID_001, admin_message, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Failed to notify admin: {e}")
+        
+        # Log the purchase
+        notify_admin_activity(user_id, username, "💳 Skipper Purchase", f"{product_name} - £{price}")
+        
+    else:
+        # Insufficient balance
+        needed = price - current_balance
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_wallet)
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"❌ **Insufficient Balance**\n\n🔸 **Product:** {product_name}\n💰 **Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
 
 def open_search(message):
     sent_msg = bot.send_message(message.chat.id, "<code>-- 🔎 Bin Search --</code>\nType the 6 digit bin you want to look for", parse_mode="HTML")
@@ -507,6 +641,9 @@ def callback_query(call):
         open_topup(call.message, call.data[3:])
     elif str(call.data)[0:4] == "base":
         open_base(call.message, call.data[4:])
+    elif call.data.startswith("skipper_"):
+        # Handle skipper product purchases
+        handle_skipper_purchase(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
