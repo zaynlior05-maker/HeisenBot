@@ -474,8 +474,6 @@
 459661******9175|09|2027|Jennifer Lloyd|300|08/17/1980
 459661******7724|06|2028|Allison Allison|200|10/30/1978
 459661******8061|02|2028|Kelley Kelley|600|11/21/1984
-487654|01|2027|345|Alex Thompson|987 High St|London|ENG|SW1A 1AA|UK|athompson@email.com|020-7946-0958|05/12/1989
-543210|10|2025|678|Sophie Clark|456 Victoria St|Manchester|ENG|M1 1AD|UK|sclark@email.com|0161-496-0123|08/25/1991
 494120******5514|06|2027|Wilkinson Wilkinson|B1|08/31/1965
 454361******7871|02|2028|Matthew Matthew|SW1|09/15/1970
 465950******2188|02|2026|Bevan Bevan|BT5|01/02/1969
