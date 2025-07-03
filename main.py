@@ -347,6 +347,9 @@ def open_base(message, base):
     elif base == "5":
         # Special handling for base5 (Heisen_10_Base) with £10 pricing and pagination
         open_10gbp_fresh_page(message, 1)  # Start with page 1
+    elif base == "6":
+        # Special handling for base6 (Heisen_Unspoofed_Base) with bulk pricing options
+        open_unspoofed_menu(message)
     else:
         # Original handling for other bases
         inline_keyboard2 = types.InlineKeyboardMarkup()
@@ -724,6 +727,127 @@ def open_10gbp_fresh_page(message, page=1):
         parse_mode="Markdown"
     )
 
+def open_unspoofed_menu(message):
+    """Display Heisen Unspoofed Base menu with bulk pricing options"""
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    # Create menu buttons for different unspoofed options
+    btn1 = types.InlineKeyboardButton("📧 Specific Unspoofed 50+ - £225", callback_data='unspoofed_specific_50')
+    btn2 = types.InlineKeyboardButton("📧 Specific Unspoofed 100+ - £350", callback_data='unspoofed_specific_100') 
+    btn3 = types.InlineKeyboardButton("🎲 Random Unspoofed 50+ - £100", callback_data='unspoofed_random_50')
+    btn4 = types.InlineKeyboardButton("🎲 Random Unspoofed 100+ - £150", callback_data='unspoofed_random_100')
+    
+    inline_keyboard2.add(btn1)
+    inline_keyboard2.add(btn2)
+    inline_keyboard2.add(btn3)
+    inline_keyboard2.add(btn4)
+    
+    # Add navigation buttons
+    inline_keyboard2.add(btn_prev)
+    inline_keyboard2.add(btn_menu)
+    
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        text="🔓 **Heisen Unspoofed Base**\n\n📧 **Specific Unspoofed Files:**\n• 50+ emails: £4 per email = £225 total\n• 100+ emails: £3.50 per email = £350 total\n\n🎲 **Random Unspoofed Files:**\n• 50+ emails: £2 per email = £100 total\n• 100+ emails: £1.50 per email = £150 total\n\n⏰ **Freshness:** Spam from 3 days - 2 weeks\n\n**Select your preferred package:**",
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+
+def handle_unspoofed_purchase(call):
+    """Handle unspoofed base purchases with bulk pricing"""
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Define pricing and package details
+    packages = {
+        'unspoofed_specific_50': {
+            'name': 'Specific Unspoofed 50+',
+            'price': 225,
+            'quantity': 50,
+            'type': 'Specific',
+            'rate': '£4 per email'
+        },
+        'unspoofed_specific_100': {
+            'name': 'Specific Unspoofed 100+',
+            'price': 350,
+            'quantity': 100,
+            'type': 'Specific',
+            'rate': '£3.50 per email'
+        },
+        'unspoofed_random_50': {
+            'name': 'Random Unspoofed 50+',
+            'price': 100,
+            'quantity': 50,
+            'type': 'Random',
+            'rate': '£2 per email'
+        },
+        'unspoofed_random_100': {
+            'name': 'Random Unspoofed 100+',
+            'price': 150,
+            'quantity': 100,
+            'type': 'Random',
+            'rate': '£1.50 per email'
+        }
+    }
+    
+    package = packages.get(call.data)
+    if not package:
+        return
+    
+    price = package['price']
+    
+    # Check user balance
+    try:
+        current_balance = db["bal" + str(user_id)]
+    except:
+        current_balance = 0
+    
+    # Process purchase
+    if current_balance >= price:
+        # Deduct amount from balance
+        db["bal" + str(user_id)] = current_balance - price
+        new_balance = current_balance - price
+        
+        # Notify user of successful purchase
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"✅ **Purchase Successful!**\n\n🔓 **Package:** {package['name']}\n📧 **Quantity:** {package['quantity']} emails\n💰 **Rate:** {package['rate']}\n💰 **Total Price:** £{price}\n🔓 **Type:** {package['type']} Unspoofed\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing\n⏰ **Freshness:** 3 days - 2 weeks",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+        
+        # Notify admin for manual delivery
+        admin_message = f"🔔 **NEW UNSPOOFED BASE PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔓 **Package:** {package['name']}\n📧 **Quantity:** {package['quantity']} emails\n💰 **Rate:** {package['rate']}\n💰 **Total Price:** £{price}\n🔓 **Type:** {package['type']} Unspoofed\n⏰ **Freshness:** 3 days - 2 weeks\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
+        
+        try:
+            bot.send_message(ADMIN_ID, admin_message, parse_mode="Markdown")
+            bot.send_message(GROUP_CHAT_ID, admin_message, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Failed to notify admin: {e}")
+        
+        # Log the purchase
+        notify_admin_activity(user_id, username, "🔓 Unspoofed Purchase", f"{package['name']} - £{price}")
+        
+    else:
+        # Insufficient balance
+        needed = price - current_balance
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_wallet)
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"❌ **Insufficient Balance**\n\n🔓 **Package:** {package['name']}\n📧 **Quantity:** {package['quantity']} emails\n💰 **Total Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+
 def handle_10gbp_purchase(call):
     """Handle purchase of £10 base items"""
     # Extract item ID from callback data
@@ -1082,6 +1206,9 @@ def callback_query(call):
     elif call.data.startswith("gbp10_"):
         # Handle £10 base purchases
         handle_10gbp_purchase(call)
+    elif call.data.startswith("unspoofed_"):
+        # Handle unspoofed base purchases
+        handle_unspoofed_purchase(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
