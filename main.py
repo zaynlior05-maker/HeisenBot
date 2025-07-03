@@ -541,73 +541,39 @@ def extract_arg2(arg):
     except:
         return []
 
-# Webhook route for Telegram (using secure path)
-@app.route('/webhook', methods=['POST'])
+# Webhook route for Telegram
+@app.route(f'/{API_KEY_001}', methods=['POST'])
 def webhook():
-    try:
-        if request.headers.get('content-type') == 'application/json':
-            json_string = request.get_data().decode('utf-8')
-            update = telebot.types.Update.de_json(json_string)
-            bot.process_new_updates([update])
-            return "OK"
-        else:
-            return "Bad Request", 400
-    except Exception as e:
-        print(f"Webhook error: {e}")
-        return "Error", 500
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return "OK"
 
 # Health check route
 @app.route('/')
 def health_check():
     return "Heisenberg Store Bot is running!"
 
-# Test route to check bot status
-@app.route('/status')
-def bot_status():
-    try:
-        bot_info = bot.get_me()
-        webhook_info = bot.get_webhook_info()
-        return f"""
-        <h1>Bot Status</h1>
-        <p><strong>Bot Name:</strong> {bot_info.first_name}</p>
-        <p><strong>Bot Username:</strong> @{bot_info.username}</p>
-        <p><strong>Webhook URL:</strong> {webhook_info.url}</p>
-        <p><strong>Pending Updates:</strong> {webhook_info.pending_update_count}</p>
-        <p><strong>Last Error:</strong> {webhook_info.last_error_message or 'None'}</p>
-        """
-    except Exception as e:
-        return f"Error getting bot status: {e}"
-
-# Set webhook for deployment
+# Set webhook
 def set_webhook():
+    # Only set webhook if REPL_SLUG and REPL_OWNER are available (deployment environment)
     repl_slug = os.environ.get('REPL_SLUG')
     repl_owner = os.environ.get('REPL_OWNER')
     
     if repl_slug and repl_owner:
-        webhook_url = f"https://{repl_slug}-{repl_owner}.replit.app/webhook"
+        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
         try:
-            # Remove existing webhook first
             bot.remove_webhook()
-            time.sleep(3)  # Give more time
-            
-            # Set new webhook
-            result = bot.set_webhook(url=webhook_url)
-            if result:
-                print(f"✓ Webhook set successfully: {webhook_url}")
-                
-                # Test webhook info
-                webhook_info = bot.get_webhook_info()
-                print(f"✓ Webhook info: {webhook_info.url}")
-                return True
-            else:
-                print(f"❌ Webhook setup failed")
-                return False
+            time.sleep(1)
+            bot.set_webhook(url=webhook_url)
+            print(f"Webhook set to: {webhook_url}")
         except Exception as e:
-            print(f"❌ Webhook setup error: {e}")
-            return False
+            print(f"Webhook setup failed: {e}")
+            print("Falling back to polling mode...")
+            bot.remove_webhook()
     else:
-        print("⚠ No deployment environment variables found")
-        return False
+        print("Development environment detected, using polling mode")
+        bot.remove_webhook()
 
 if __name__ == '__main__':
     # Set up bot commands menu for easy access
@@ -624,54 +590,17 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    # Check if we're in deployment environment (has REPL_SLUG)
-    repl_slug = os.environ.get('REPL_SLUG')
-    repl_owner = os.environ.get('REPL_OWNER')
-    
-    if repl_slug and repl_owner:
-        # Deployment mode - use webhook with Flask
-        print("🚀 Starting Heisenberg Store Bot in deployment mode...")
+    # Always use polling mode for Replit
+    print("🚀 Starting Heisenberg Store Bot in polling mode...")
+    try:
+        bot.remove_webhook()  # Remove any existing webhook
+        print("✓ Webhook removed successfully")
+        print("✓ Bot is now active - users can send /start")
+        bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    except Exception as e:
+        print(f"❌ Bot polling failed: {e}")
+        print("🔄 Retrying with basic polling...")
         try:
-            # Start Flask first
-            port = int(os.environ.get('PORT', 5000))
-            print(f"✓ Starting Flask app on 0.0.0.0:{port}")
-            
-            # Set webhook after a delay
-            import threading
-            def setup_webhook():
-                time.sleep(5)  # Wait for Flask to start
-                webhook_success = set_webhook()
-                if not webhook_success:
-                    print("⚠️ Webhook failed, bot may not respond to messages")
-            
-            webhook_thread = threading.Thread(target=setup_webhook)
-            webhook_thread.start()
-            
-            # Start Flask app
-            app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
-        except Exception as e:
-            print(f"❌ Deployment failed: {e}")
-            print("🔄 Falling back to polling mode...")
-            # Fallback to polling
-            try:
-                bot.remove_webhook()
-                time.sleep(2)
-                print("✓ Bot is now active - users can send /start")
-                bot.infinity_polling(timeout=10, long_polling_timeout=5)
-            except Exception as poll_error:
-                print(f"❌ Polling fallback also failed: {poll_error}")
-    else:
-        # Development mode - use polling
-        print("🚀 Starting Heisenberg Store Bot in development mode...")
-        try:
-            bot.remove_webhook()  # Remove any existing webhook
-            print("✓ Webhook removed successfully")
-            print("✓ Bot is now active - users can send /start")
-            bot.infinity_polling(timeout=10, long_polling_timeout=5)
-        except Exception as e:
-            print(f"❌ Bot polling failed: {e}")
-            print("🔄 Retrying with basic polling...")
-            try:
-                bot.polling(none_stop=True, interval=1, timeout=10)
-            except Exception as retry_error:
-                print(f"❌ All polling methods failed: {retry_error}")
+            bot.polling(none_stop=True, interval=1, timeout=10)
+        except Exception as retry_error:
+            print(f"❌ All polling methods failed: {retry_error}")
