@@ -111,7 +111,7 @@ btn_1000 = types.InlineKeyboardButton('🔸£1000🔸', callback_data='btc1000')
 
 
 
-btn_base1 = types.InlineKeyboardButton('🔸APPLE PAY BINS + FREE METHOD', callback_data='base1')
+
 btn_base2 = types.InlineKeyboardButton('🔸Australia', callback_data='base2')
 
 dat1 = datetime.date.today()
@@ -131,7 +131,7 @@ btn_base4 = types.InlineKeyboardButton('🔸' + month_3 + '-Heisen-V' + day_3 + 
 btn_base5 = types.InlineKeyboardButton('🔸' + month_2 + '-Heisen-V' + day_2, callback_data='base5')
 btn_base6 = types.InlineKeyboardButton('🔸' + month_1 + '-Heisen-V' + day_1 + '-1', callback_data='base6')
 btn_base7 = types.InlineKeyboardButton('🔸' + month_1 + '-Heisen-V' + day_1 + '-2', callback_data='base7')
-btn_base11 = types.InlineKeyboardButton('🔸Skip bins', callback_data='base11')
+btn_base11 = types.InlineKeyboardButton('🔸Skiper & Meth', callback_data='base11')
 btn_base10 = types.InlineKeyboardButton('🔸USA', callback_data='base10')
 
 
@@ -140,7 +140,6 @@ inline_keyboard1.add(btn_wallet, btn_support)
 inline_keyboard1.add(btn_rules, btn_updates)
 
 inline_keyboard3.add(btn_base11)
-inline_keyboard3.add(btn_base1)
 inline_keyboard3.add(btn_base2)
 inline_keyboard3.add(btn_base3)
 inline_keyboard3.add(btn_base4)
