@@ -1,0 +1,96 @@
+494120 - HSBC Gold Credit
+454361 - HSBC Gold Credit
+465950 - HSBC Premium x2
+465944 - HSBC 
+465943 - HSBC x8
+465942 - HSBC x5
+465941 - HSBC Business
+454638 - HSBC Credit x3
+465861 - Barclays Business
+465860 - Barclays Business
+492915 - Barclays Platinum Credit x2
+492913 - Barclays Platinum Credit x2 
+492912 - Barclays Platinum Credit
+465923 - Barclays Platinum
+465922 - Barclays Platinum x2
+465902 - Barclays x4
+465901 - Barclays x6
+465865 - Barclays x37
+465859 - Barclays x11
+453979 - Barclays x2
+453978 - Barclays x2
+525303 - Lloyds Credit x6
+525302 - Lloyds Credit
+446272 - Lloyds Platinum
+492182 - Lloyds Gold x5
+465910 - Lloyds x5
+446274 - Lloyds x2
+446259 - Lloyds x7
+543429 - Halifax Platinum Credit x2
+446238 - Halifax x11
+546811 - NatWest Platinum Credit
+543699 - NatWest Gold Credit
+543468 - NatWest Credit
+552213 - NatWest Credit
+537410 - NatWest x76
+475130 - NatWest x2
+475129 - NatWest x3
+475128 - NatWest
+535667 - Santander Select 
+535666 - Santander x59
+528689 - Santander Credit x4
+522948 - Santander Credit x3
+454495 - Co/Operative Credit
+498824 - Co/Operative Bank 
+527669 - Virgin Money Credit x3
+557436 - Clydesdale x2
+557351 - Clydesdale x5
+557349 - Clydesdale x4
+535710 - Metro Business x3
+535456 - Revolut x2
+496604 - Hong Kong Corporate Credit
+523642 - Sainsburys Platinum Credit
+546097 - Capital One Credit x2
+402396 - Vanquis Gold Credit x3
+520641 - Tesco Platinum Credit
+552188 - Tesco World Credit x3
+518652 - Tesco Credit x2
+524679 - NewDay Credit
+529930 - M&S Credit x2
+557379 - Danske Bank x4
+537310 - Ulster Bank x8
+414720 - JPMorgan Credit
+461805 - JaJa Finance Credit
+523067 - MBNA Credit
+546895 - MBNA Credit
+557361 - Metro 
+516767 - Chase Bank 
+535674 - Starling Bank x8
+535522 - Monzo x14
+476368 - TSB
+476367 - TSB x13
+459647 - TSB x5
+530553 - PrePay Technology Business
+557357 - ThinkMoney PLC
+530844 - ThinkMoney PLC x3
+459693 - Yorkshire Bank 
+489396 - Nationwide Platinum Credit x3
+475144 - Nationwide x2 
+475145 - Nationwide x2
+475142 - Nationwide x2
+475141 - Nationwide x2
+475140 - Nationwide x4
+475139 - Nationwide x5
+465935 - Nationwide x17
+454313 - Nationwide x9
+537317 - Royal Bank Of Scotland x12
+446204 - Bank Of Scotland Business
+476220 - Bank Of Scotland Platinum
+446279 - Bank Of Scotland
+476223 - Bank Of Scotland x14
+446292 - Bank Of Scotland x9
+476224 - Bank Of Scotland x2
+459607 - Bank Of Yorkshire
+537382
+494052
+557401
