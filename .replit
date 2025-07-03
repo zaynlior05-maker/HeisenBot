@@ -14,10 +14,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Mazza X Gaara Bot"
+args = "Bot"
 
 [[workflows.workflow]]
-name = "Mazza X Gaara Bot"
+name = "Bot"
 author = "agent"
 
 [[workflows.workflow.tasks]]
