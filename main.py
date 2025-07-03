@@ -732,10 +732,10 @@ def open_unspoofed_menu(message):
     inline_keyboard2 = types.InlineKeyboardMarkup()
     
     # Create menu buttons for different unspoofed options
-    btn1 = types.InlineKeyboardButton("📧 Specific Unspoofed 50+ - £225", callback_data='unspoofed_specific_50')
-    btn2 = types.InlineKeyboardButton("📧 Specific Unspoofed 100+ - £350", callback_data='unspoofed_specific_100') 
-    btn3 = types.InlineKeyboardButton("🎲 Random Unspoofed 50+ - £100", callback_data='unspoofed_random_50')
-    btn4 = types.InlineKeyboardButton("🎲 Random Unspoofed 100+ - £150", callback_data='unspoofed_random_100')
+    btn1 = types.InlineKeyboardButton("💳 Specific Unspoofed 50+ - £225", callback_data='unspoofed_specific_50')
+    btn2 = types.InlineKeyboardButton("💳 Specific Unspoofed 100+ - £350", callback_data='unspoofed_specific_100') 
+    btn3 = types.InlineKeyboardButton("🃏 Random Unspoofed 50+ - £100", callback_data='unspoofed_random_50')
+    btn4 = types.InlineKeyboardButton("🃏 Random Unspoofed 100+ - £150", callback_data='unspoofed_random_100')
     
     inline_keyboard2.add(btn1)
     inline_keyboard2.add(btn2)
@@ -749,7 +749,7 @@ def open_unspoofed_menu(message):
     bot.edit_message_text(
         chat_id=message.chat.id,
         message_id=message.message_id,
-        text="🔓 **Heisen Unspoofed Base**\n\n📧 **Specific Unspoofed Files:**\n• 50+ emails: £4 per email = £225 total\n• 100+ emails: £3.50 per email = £350 total\n\n🎲 **Random Unspoofed Files:**\n• 50+ emails: £2 per email = £100 total\n• 100+ emails: £1.50 per email = £150 total\n\n⏰ **Freshness:** Spam from 3 days - 2 weeks\n\n**Select your preferred package:**",
+        text="🔓 **Heisen Unspoofed Base**\n\n💳 **Specific Unspoofed Files:**\n• 50+ cards: £4 per card = £225 total\n• 100+ cards: £3.50 per card = £350 total\n\n🃏 **Random Unspoofed Files:**\n• 50+ cards: £2 per card = £100 total\n• 100+ cards: £1.50 per card = £150 total\n\n⏰ **Freshness:** Spam from 3 days - 2 weeks\n\n**Select your preferred package:**",
         reply_markup=inline_keyboard2,
         parse_mode="Markdown"
     )
@@ -766,28 +766,28 @@ def handle_unspoofed_purchase(call):
             'price': 225,
             'quantity': 50,
             'type': 'Specific',
-            'rate': '£4 per email'
+            'rate': '£4 per card'
         },
         'unspoofed_specific_100': {
             'name': 'Specific Unspoofed 100+',
             'price': 350,
             'quantity': 100,
             'type': 'Specific',
-            'rate': '£3.50 per email'
+            'rate': '£3.50 per card'
         },
         'unspoofed_random_50': {
             'name': 'Random Unspoofed 50+',
             'price': 100,
             'quantity': 50,
             'type': 'Random',
-            'rate': '£2 per email'
+            'rate': '£2 per card'
         },
         'unspoofed_random_100': {
             'name': 'Random Unspoofed 100+',
             'price': 150,
             'quantity': 100,
             'type': 'Random',
-            'rate': '£1.50 per email'
+            'rate': '£1.50 per card'
         }
     }
     
@@ -816,13 +816,13 @@ def handle_unspoofed_purchase(call):
         bot.edit_message_text(
             chat_id=user_id,
             message_id=call.message.message_id,
-            text=f"✅ **Purchase Successful!**\n\n🔓 **Package:** {package['name']}\n📧 **Quantity:** {package['quantity']} emails\n💰 **Rate:** {package['rate']}\n💰 **Total Price:** £{price}\n🔓 **Type:** {package['type']} Unspoofed\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing\n⏰ **Freshness:** 3 days - 2 weeks",
+            text=f"✅ **Purchase Successful!**\n\n🔓 **Package:** {package['name']}\n💳 **Quantity:** {package['quantity']} cards\n💰 **Rate:** {package['rate']}\n💰 **Total Price:** £{price}\n🔓 **Type:** {package['type']} Unspoofed\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing\n⏰ **Freshness:** 3 days - 2 weeks",
             reply_markup=inline_keyboard2,
             parse_mode="Markdown"
         )
         
         # Notify admin for manual delivery
-        admin_message = f"🔔 **NEW UNSPOOFED BASE PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔓 **Package:** {package['name']}\n📧 **Quantity:** {package['quantity']} emails\n💰 **Rate:** {package['rate']}\n💰 **Total Price:** £{price}\n🔓 **Type:** {package['type']} Unspoofed\n⏰ **Freshness:** 3 days - 2 weeks\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
+        admin_message = f"🔔 **NEW UNSPOOFED BASE PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔓 **Package:** {package['name']}\n💳 **Quantity:** {package['quantity']} cards\n💰 **Rate:** {package['rate']}\n💰 **Total Price:** £{price}\n🔓 **Type:** {package['type']} Unspoofed\n⏰ **Freshness:** 3 days - 2 weeks\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
         
         try:
             bot.send_message(ADMIN_ID, admin_message, parse_mode="Markdown")
@@ -843,7 +843,7 @@ def handle_unspoofed_purchase(call):
         bot.edit_message_text(
             chat_id=user_id,
             message_id=call.message.message_id,
-            text=f"❌ **Insufficient Balance**\n\n🔓 **Package:** {package['name']}\n📧 **Quantity:** {package['quantity']} emails\n💰 **Total Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
+            text=f"❌ **Insufficient Balance**\n\n🔓 **Package:** {package['name']}\n💳 **Quantity:** {package['quantity']} cards\n💰 **Total Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
             reply_markup=inline_keyboard2,
             parse_mode="Markdown"
         )
