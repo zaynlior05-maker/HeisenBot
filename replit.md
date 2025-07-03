@@ -95,7 +95,7 @@ The application is designed for deployment on Replit with the following characte
 ## Changelog
 - July 03, 2025. Initial setup
 - July 03, 2025. Updated configuration files to make bot customizable with user's own details
-- July 03, 2025. Replaced with custom Mazza X Gaara bot implementation
+- July 03, 2025. Replaced with custom bot implementation, rebranded as Heisenberg Store
 
 ## Recent Changes
 
