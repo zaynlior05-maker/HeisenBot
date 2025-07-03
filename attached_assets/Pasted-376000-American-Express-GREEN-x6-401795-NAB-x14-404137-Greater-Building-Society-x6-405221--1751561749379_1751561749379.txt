@@ -1,0 +1,82 @@
+376000 - American Express GREEN x6
+401795 - NAB x14
+404137 - Greater Building Society x6
+405221 - Commonwealth PLATINUM x11
+405497 - Heritage Bank x9
+406587 - Commonwealth BUSINESS x7
+408856 - Heritage x4
+413312 - People Choice C.U x4
+413321 - Teachers Mutual Bank x3
+413323 - Police & Nurses x2
+415436 - Ubank x4
+420274 - Ing x6
+423953 - St George Bank x18
+423954 - St George’s Bank x7
+428418 - ASB Bank NZ x7
+430330 - NAB PLATINUM x4
+432465 - Only1 Visa Gift Card x5
+434402 - Community CPS x2
+434968 - Bank Of Queensland x2
+436774 - ANZ GOLD x3
+439225 - China Merchants Bank  x3
+443438 - Credit Union x6
+443446 - Community CPS x3
+443450 - Credit Union x4
+443460 - MECU Bank x2
+450949 - ANZ x6
+453030 - NAB SIGNATURE x3
+455701 - NAB PLATINUM x6
+455702 - NAB x25
+456409 - Commonwealth SIGNATURE x6
+456432 - Suncorp x4
+456462 - ANZ x9
+456468 - ANZ x6
+456469 - ANZ PLATINUM x3
+456475 - Newcastle Building Society x3
+456479 - Police Association x;
+456480 - ANZ BUSINESS x6
+458594 - HSBC AUS x7
+458595 - HSBC AUS PLATINUM x4
+459661 - Wise INFINITE x6
+461085 - Team One C.U x2
+462239 - ANZ x28
+462263 - Ing x11
+463231 - Bank Of China GOLD x2
+463925 - NAB BUSINESS  x4
+464579 - ANZ BUSINESS x4
+465858 - Barclays  x16
+470889 - N/A x2
+472148 - N/A x2
+474838 - Heritage Bank x11
+478280 - Westpac PLATINUM x6
+489592 - China Construction Bank x3
+490292 - NAB GOLD x5
+493130 - Bananacoast Ltd x2
+493414 - Indue Ltd x4
+494052 - Commonwealth x18
+516310 - Westpac x21
+516320 - Westpac x7
+516323 - Westpac TITANIUM x4
+516324 - Westpac  x13
+516351 - CSC Bank x5
+516361 - Westpac x8
+516366 - Westpac BUSINESS x4
+516380 - Westpac x26
+518840 - Bendigo TITANIUM x
+518864 - Bendigo x16
+521429 - Fifth Bank x5
+521729 - Commonwealth x14
+522980 - BankWest x4
+525696 - OJSC Bank x2
+530638 - Revolut WORLD x3
+532655 - Commonwealth PLATINUM x5
+535316 - Commonwealth x8
+535318 - Commonwealth GOLD x3
+535419 - Blom Bank Lebanon x2
+536036 - Macquarie TITANIUM x 4
+538660 - Heritage Bank x7
+544647 - Citigroup x6
+552033 - Commonwealth TITANIUM x3
+552350 - Commonwealth WORLD x5
+552351 - Commonwealth x17
+555389 - Revolut Aus PLATINUM x7

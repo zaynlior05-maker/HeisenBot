@@ -536,20 +536,13 @@ def open_uk_fresh_page(message, page=1):
     """Display UK fresh base with pagination (25 items per page)"""
     inline_keyboard2 = types.InlineKeyboardMarkup()
     
-    # Generate sample UK data (you can replace this with your actual data)
+    # Load real UK fresh base data
     all_uk_data = []
-    for i in range(1, 101):  # Generate 100 sample entries
-        postcode_samples = ["SW1A 1AA", "M1 1AA", "B1 1AA", "LS1 1AA", "NE1 1AA", "GL1 1AA", "CV1 1AA", "S1 1AA", "L1 1AA", "BD1 1AA"]
-        postcode = postcode_samples[i % len(postcode_samples)]
-        bin_num = 424242 + i
-        all_uk_data.append(f"UK BIN: {bin_num} | PostCode: {postcode}")
-    
-    # Try to load from file if it exists
     try:
         with open("base2/fullz2.txt") as file:
             all_uk_data = [line.strip() for line in file if line.strip()]
     except FileNotFoundError:
-        pass  # Use sample data
+        all_uk_data = ["No data available"]
     
     # Pagination logic
     items_per_page = 25
@@ -607,20 +600,13 @@ def handle_ukfresh_purchase(call):
     item_id = int(call.data.replace("uk_", ""))
     price = 30  # Fixed price for UK fresh base
     
-    # Generate the same data to get the specific item
+    # Load the same real UK fresh base data
     all_uk_data = []
-    for i in range(1, 101):  # Generate 100 sample entries
-        postcode_samples = ["SW1A 1AA", "M1 1AA", "B1 1AA", "LS1 1AA", "NE1 1AA", "GL1 1AA", "CV1 1AA", "S1 1AA", "L1 1AA", "BD1 1AA"]
-        postcode = postcode_samples[i % len(postcode_samples)]
-        bin_num = 424242 + i
-        all_uk_data.append(f"UK BIN: {bin_num} | PostCode: {postcode}")
-    
-    # Try to load from file if it exists
     try:
         with open("base2/fullz2.txt") as file:
             all_uk_data = [line.strip() for line in file if line.strip()]
     except FileNotFoundError:
-        pass  # Use sample data
+        all_uk_data = []
     
     # Get the specific product data
     if 1 <= item_id <= len(all_uk_data):
