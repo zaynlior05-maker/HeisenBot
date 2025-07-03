@@ -528,27 +528,31 @@ def set_webhook():
         bot.remove_webhook()
 
 if __name__ == '__main__':
-    # Check if we're in deployment environment
-    repl_slug = os.environ.get('REPL_SLUG')
-    repl_owner = os.environ.get('REPL_OWNER')
+    # Set up bot commands menu for easy access
+    commands = [
+        telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
+        telebot.types.BotCommand("wallet", "💰 Check wallet balance"),
+        telebot.types.BotCommand("balance", "💳 View current balance"),
+        telebot.types.BotCommand("help", "ℹ️ Get help and info")
+    ]
     
-    if repl_slug and repl_owner:
-        # Deployment mode - use webhook
+    try:
+        bot.set_my_commands(commands)
+        print("✓ Bot commands menu set successfully")
+    except Exception as e:
+        print(f"⚠ Could not set commands menu: {e}")
+    
+    # Always use polling mode for Replit
+    print("🚀 Starting Heisenberg Store Bot in polling mode...")
+    try:
+        bot.remove_webhook()  # Remove any existing webhook
+        print("✓ Webhook removed successfully")
+        print("✓ Bot is now active - users can send /start")
+        bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    except Exception as e:
+        print(f"❌ Bot polling failed: {e}")
+        print("🔄 Retrying with basic polling...")
         try:
-            set_webhook()
-            port = int(os.environ.get('PORT', 5000))
-            print(f"Starting Flask app on 0.0.0.0:{port}")
-            app.run(host='0.0.0.0', port=port, debug=False)
-        except Exception as e:
-            print(f"Deployment failed: {e}")
-    else:
-        # Development mode - use polling
-        print("Development environment detected, starting bot in polling mode...")
-        try:
-            bot.remove_webhook()
-            print("Bot started successfully! Send /start to test.")
-            bot.polling(none_stop=True, interval=0, timeout=20)
-        except Exception as e:
-            print(f"Polling failed: {e}")
-            print("Retrying with infinity polling...")
-            bot.infinity_polling(timeout=10, long_polling_timeout=5)
+            bot.polling(none_stop=True, interval=1, timeout=10)
+        except Exception as retry_error:
+            print(f"❌ All polling methods failed: {retry_error}")
