@@ -240,9 +240,11 @@ def handle_keyboard_buttons(message):
         notify_admin_activity(message.chat.id, message.chat.username, "💷 Wallet", "Used shortcut button")
         # Send wallet menu
         inline_keyboard2 = types.InlineKeyboardMarkup()
-        inline_keyboard2.add(btn_70)  # Feature £70 as main amount
-        inline_keyboard2.add(btn_50, btn_100)
-        inline_keyboard2.add(btn_150, btn_200)
+        inline_keyboard2.add(btn_70)  # Featured amount
+        inline_keyboard2.add(btn_100, btn_150)
+        inline_keyboard2.add(btn_200, btn_250)
+        inline_keyboard2.add(btn_300, btn_400)
+        inline_keyboard2.add(btn_500, btn_1000)
         inline_keyboard2.add(btn_menu)
         
         try:
@@ -316,7 +318,7 @@ def open_wallet(message):
         db["bal" + str(message.chat.id)] = 0
     
     inline_keyboard2 = types.InlineKeyboardMarkup()
-    inline_keyboard2.add(btn_70)
+    inline_keyboard2.add(btn_70)  # Featured amount
     inline_keyboard2.add(btn_100, btn_150)
     inline_keyboard2.add(btn_200, btn_250)
     inline_keyboard2.add(btn_300, btn_400)
