@@ -110,40 +110,24 @@ btn_400 = types.InlineKeyboardButton('🔸£400🔸', callback_data='btc400')
 btn_500 = types.InlineKeyboardButton('🔸£500🔸', callback_data='btc500')
 btn_1000 = types.InlineKeyboardButton('🔸£1000🔸', callback_data='btc1000')
 
-btn_base2 = types.InlineKeyboardButton('🔸Australia', callback_data='base2')
-
-dat1 = datetime.date.today()
-month_1 = dat1.strftime("%B")
-day_1 = dat1.strftime("%d")
-
-dat2 = dat1 - datetime.timedelta(days=1)
-month_2 = dat2.strftime("%B")
-day_2 = dat2.strftime("%d")
-
-dat3 = dat2 - datetime.timedelta(days=1)
-month_3 = dat3.strftime("%B")
-day_3 = dat3.strftime("%d")
-
-btn_base3 = types.InlineKeyboardButton('🔸' + month_3 + '-Heisen-V' + day_3 + '-1', callback_data='base3')
-btn_base4 = types.InlineKeyboardButton('🔸' + month_3 + '-Heisen-V' + day_3 + '-2', callback_data='base4')
-btn_base5 = types.InlineKeyboardButton('🔸' + month_2 + '-Heisen-V' + day_2, callback_data='base5')
-btn_base6 = types.InlineKeyboardButton('🔸' + month_1 + '-Heisen-V' + day_1 + '-1', callback_data='base6')
-btn_base7 = types.InlineKeyboardButton('🔸' + month_1 + '-Heisen-V' + day_1 + '-2', callback_data='base7')
-btn_base11 = types.InlineKeyboardButton('🔸Skiper & Meth', callback_data='base11')
-btn_base10 = types.InlineKeyboardButton('🔸USA', callback_data='base10')
+# Updated base buttons with new naming
+btn_base2 = types.InlineKeyboardButton('🔸Heisen_Uk_Fresh_Base', callback_data='base2')
+btn_base3 = types.InlineKeyboardButton('🔸Heisen_Aus_Fresh_Base', callback_data='base3')
+btn_base4 = types.InlineKeyboardButton('🔸Heisen_Rare_Base', callback_data='base4')
+btn_base5 = types.InlineKeyboardButton('🔸Heisen_10_Base', callback_data='base5')
+btn_base6 = types.InlineKeyboardButton('🔸Heisen_Unspoofed_Base', callback_data='base6')
+btn_base11 = types.InlineKeyboardButton('🔸Skippers&Meth', callback_data='base11')
 
 inline_keyboard1.add(btn_store)
 inline_keyboard1.add(btn_wallet, btn_support)
 inline_keyboard1.add(btn_rules, btn_updates)
 
-inline_keyboard3.add(btn_base11)
-inline_keyboard3.add(btn_base2)
-inline_keyboard3.add(btn_base3)
-inline_keyboard3.add(btn_base4)
-inline_keyboard3.add(btn_base5)
-inline_keyboard3.add(btn_base6)
-inline_keyboard3.add(btn_base7)
-inline_keyboard3.add(btn_base10)
+inline_keyboard3.add(btn_base2)  # Heisen_Uk_Fresh_Base
+inline_keyboard3.add(btn_base3)  # Heisen_Aus_Fresh_Base  
+inline_keyboard3.add(btn_base4)  # Heisen_Rare_Base
+inline_keyboard3.add(btn_base5)  # Heisen_10_Base
+inline_keyboard3.add(btn_base6)  # Heisen_Unspoofed_Base
+inline_keyboard3.add(btn_base11) # Skippers&Meth
 inline_keyboard3.add(btn_search)
 inline_keyboard3.add(btn_menu)
 
@@ -478,14 +462,12 @@ def callback_query(call):
         "updates": "📢 Opened Updates Channel",
         "menu": "🏠 Returned to Main Menu",
         "cancel": "❌ Cancelled Action",
-        "base2": "📁 Opened Australia Base",
-        "base3": "📁 Opened Dynamic Base 3",
-        "base4": "📁 Opened Dynamic Base 4",
-        "base5": "📁 Opened Dynamic Base 5",
-        "base6": "📁 Opened Dynamic Base 6",
-        "base7": "📁 Opened Dynamic Base 7",
-        "base10": "📁 Opened USA Base",
-        "base11": "📁 Opened Skiper & Meth"
+        "base2": "📁 Opened Heisen_Uk_Fresh_Base",
+        "base3": "📁 Opened Heisen_Aus_Fresh_Base",
+        "base4": "📁 Opened Heisen_Rare_Base",
+        "base5": "📁 Opened Heisen_10_Base",
+        "base6": "📁 Opened Heisen_Unspoofed_Base",
+        "base11": "📁 Opened Skippers&Meth"
     }
     
     if call.data.startswith("btc"):

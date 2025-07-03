@@ -99,6 +99,19 @@ The application is designed for deployment on Replit with the following characte
 
 ## Recent Changes
 
+### Base Naming Update (July 03, 2025)
+- Updated all base names to new Heisenberg branding system
+- Organized bases in specific order as requested:
+  1. Heisen_Uk_Fresh_Base (base2)
+  2. Heisen_Aus_Fresh_Base (base3)  
+  3. Heisen_Rare_Base (base4)
+  4. Heisen_10_Base (base5)
+  5. Heisen_Unspoofed_Base (base6)
+  6. Skippers&Meth (base11)
+- Removed dynamic date-based naming system
+- Updated keyboard layout and admin notification messages
+- Maintained all existing functionality and menu structures
+
 ### Custom Bot Implementation (July 03, 2025)
 - Replaced entire codebase with user's custom Mazza X Gaara bot
 - Removed web dashboard components - now uses pure Telegram bot interface
