@@ -8,8 +8,8 @@ import os
 API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', '7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI')
 
 # Admin Configuration - CHANGE THESE TO YOUR DETAILS
-ADMIN_ID = int(os.getenv('ADMIN_ID', '123456789'))  # Replace with your user ID
-adminpass = os.getenv('ADMIN_PASSWORD', 'admin123')
+ADMIN_ID = int(os.getenv('ADMIN_ID', '1182433696'))  # Your actual user ID
+adminpass = os.getenv('ADMIN_PASSWORD', 'heisenberg2024')
 
 # Group Chat Configuration - CHANGE THESE TO YOUR GROUP IDs
 GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', '-1002563927894'))  # HeisenbergStoreUk group
@@ -29,7 +29,7 @@ BITCOIN_RATES = {
 }
 
 # Bitcoin Wallet Address - ADD YOUR WALLET HERE
-BITCOIN_WALLET = "YOUR_BITCOIN_WALLET_ADDRESS_HERE"
+BITCOIN_WALLET = "bc1q64f2jfjpv2f7n4a2jryj08wklc0yrvsjles5wt"
 
 # Product Categories
 PRODUCT_CATEGORIES = {

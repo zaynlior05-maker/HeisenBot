@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # Bot configuration
 API_KEY = os.getenv('TELEGRAM_BOT_TOKEN', '7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI')
-ADMIN_ID = int(os.getenv('ADMIN_ID', '123456789'))  # Replace with your actual user ID
+ADMIN_ID = int(os.getenv('ADMIN_ID', '1182433696'))  # Your actual user ID
 GROUP_ID = int(os.getenv('GROUP_ID', '-1002563927894'))
 
 class FullzHavenBot:
@@ -134,22 +134,9 @@ class FullzHavenBot:
     
     def generate_btc_address(self, amount_gbp):
         """Generate Bitcoin address for payment"""
-        # Generate a realistic looking address
-        prefixes = ['bc1', '3', '1']
-        prefix = random.choice(prefixes)
-        
-        if prefix == 'bc1':
-            # Bech32 address
-            chars = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
-            length = random.randint(39, 59)
-            address = prefix + ''.join(random.choice(chars) for _ in range(length))
-        else:
-            # Legacy or P2SH address
-            chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789'
-            length = random.randint(26, 35)
-            address = prefix + ''.join(random.choice(chars) for _ in range(length))
-        
-        return address
+        # Use your actual Bitcoin wallet address for real payments
+        from constants import BITCOIN_WALLET
+        return BITCOIN_WALLET
     
     def handle_wallet_amount(self, call, amount_gbp):
         """Handle wallet amount selection and generate payment"""
