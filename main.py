@@ -183,9 +183,10 @@ def userbal(message):
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-  requests.post(
-    'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
-    + str(message.chat.username)  + " (" + str(message.chat.id) + ') just started the bot')
+  # Add your notification bot token and group ID here
+  # requests.post(
+  #   'https://api.telegram.org/botYOUR_NOTIFICATION_BOT_TOKEN/sendMessage?chat_id=YOUR_GROUP_ID&text=@'
+  #   + str(message.chat.username)  + " (" + str(message.chat.id) + ') just started the bot')
 
   try:
     value = db["bal" + str(message.chat.id)]
@@ -199,7 +200,7 @@ def send_welcome(message):
     parse_mode="Markdown")
   msg = bot.send_message(
     message.chat.id,
-    "Welcome to Mazza X Gaara's Store\n\nMade/Coded by @Kr3pto [ only pm for coding needs ]\n\nManaged by @mazzaV2\n\nUsername : <code>"
+    "Welcome to YOUR_STORE_NAME\n\nMade/Coded by @YOUR_USERNAME\n\nManaged by @YOUR_ADMIN_USERNAME\n\nUsername : <code>"
     + str(message.chat.username) + "</code>\nID: <code>" +
     str(message.chat.id) + "</code>",
     reply_markup=inline_keyboard1,
@@ -213,9 +214,10 @@ def open_binlist(message):
                         text="Choose the base you would like to browse:",
                         reply_markup=inline_keyboard3,
                         parse_mode="HTML")
-  requests.post(
-    'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
-    + str(message.chat.username)  + " (" + str(message.chat.id) + ') is browsing through fullz')
+  # Add your notification here if needed
+  # requests.post(
+  #   'https://api.telegram.org/botYOUR_NOTIFICATION_BOT_TOKEN/sendMessage?chat_id=YOUR_GROUP_ID&text=@'
+  #   + str(message.chat.username)  + " (" + str(message.chat.id) + ') is browsing through fullz')
 
 
 def open_base(message, base):
@@ -263,16 +265,25 @@ def open_wallet(message):
     reply_markup=inline_keyboard2,
     parse_mode="HTML")
 
-  requests.post(
-    'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
-    + str(message.chat.username)  + " (" + str(message.chat.id) + ') opened the wallet')
+  # Add your notification here if needed
+  # requests.post(
+  #   'https://api.telegram.org/botYOUR_NOTIFICATION_BOT_TOKEN/sendMessage?chat_id=YOUR_GROUP_ID&text=@'
+  #   + str(message.chat.username)  + " (" + str(message.chat.id) + ') opened the wallet')
 
 
 def open_topup(message, amount):
 
   inline_keyboard2 = types.InlineKeyboardMarkup()
   inline_keyboard2.add(btn_menu)
-  btc_amount = str(float(round(b.convert_to_btc(int(amount), 'GBP'), 5)))
+  
+  # Use fixed BTC rates instead of API call
+  btc_rates = {
+    '20': '0.00025', '30': '0.00038', '50': '0.00063', '70': '0.00088',
+    '100': '0.00126', '150': '0.00189', '200': '0.00252', '250': '0.00315',
+    '300': '0.00378', '400': '0.00504', '500': '0.00630', '1000': '0.01260'
+  }
+  
+  btc_amount = btc_rates.get(amount, '0.00100')
 
   bot.edit_message_text(
     chat_id=message.chat.id,
@@ -281,10 +292,11 @@ def open_topup(message, amount):
     " BTC to the following address: \n<code>bc1qsndr0eczpagjxenh8dus3x720zy8c5dkvfds8n</code>\n\n⚠️┇Deposits are non refundable\n⚠️┇Double check BTC amount\n⚠️┇Send as BTC not as £\n\nFunds will appear in your account after 3 confirmations.",
     reply_markup=inline_keyboard2,
     parse_mode="HTML")
-  requests.post(
-    'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
-    + str(message.chat.username)  + " (" + str(message.chat.id) + ') opened the topup page for £' +
-    str(amount))
+  # Add your notification here if needed
+  # requests.post(
+  #   'https://api.telegram.org/botYOUR_NOTIFICATION_BOT_TOKEN/sendMessage?chat_id=YOUR_GROUP_ID&text=@'
+  #   + str(message.chat.username)  + " (" + str(message.chat.id) + ') opened the topup page for £' +
+  #   str(amount))
 
 
 def open_support(message):
@@ -292,7 +304,7 @@ def open_support(message):
   inline_keyboard2.add(btn_menu)
   bot.edit_message_text(chat_id=message.chat.id,
                         message_id=message.message_id,
-                        text='Support Account  : @MxGSupportV2',
+                        text='Support Account  : @YOUR_SUPPORT_USERNAME',
                         reply_markup=inline_keyboard2,
                         parse_mode="Markdown")
 
@@ -302,7 +314,7 @@ def open_update(message):
   inline_keyboard2.add(btn_menu)
   bot.edit_message_text(chat_id=message.chat.id,
                         message_id=message.message_id,
-                        text='Invite Link  : https://t.me/MazzaXGaraBot',
+                        text='Invite Link  : https://t.me/YOUR_BOT_USERNAME',
                         reply_markup=inline_keyboard2,
                         parse_mode="Markdown")
 
@@ -312,7 +324,7 @@ def open_menu(message):
     chat_id=message.chat.id,
     message_id=message.message_id,
     text=
-    "Welcome to Mazza X Gaara's Store\n\nMade/Coded by @Kr3pto [ only pm for coding needs ]\n\nManaged by @mazzaV2\n\nUsername : <code>"
+    "Welcome to YOUR_STORE_NAME\n\nMade/Coded by @YOUR_USERNAME\n\nManaged by @YOUR_ADMIN_USERNAME\n\nUsername : <code>"
     + str(message.chat.username) + "</code>\nID: <code>" +
     str(message.chat.id) + "</code>",
     reply_markup=inline_keyboard1,
@@ -372,9 +384,10 @@ def bin_handler(message):
           return
         elif(exists == False):
           bot.send_message(message.chat.id, "Couldn't Fetch the Bin please try again later")
-          requests.post(
-    'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
-    + str(message.chat.username) + " (" + str(message.chat.id) + ') searched this bin, but it is not available: ' + str(bin))
+          # Add your notification here if needed
+          # requests.post(
+          #   'https://api.telegram.org/botYOUR_NOTIFICATION_BOT_TOKEN/sendMessage?chat_id=YOUR_GROUP_ID&text=@'
+          #   + str(message.chat.username) + " (" + str(message.chat.id) + ') searched this bin, but it is not available: ' + str(bin))
           return
     else:
       sent_msg = bot.send_message(message.chat.id, "Bin number is 6 Digits or press cancel to close this session", reply_markup = inline_keyboard2)
@@ -437,9 +450,10 @@ def callback_query(call):
   elif str(call.data)[0:4] == "base":
     open_base(call.message, call.data[4:])
   elif call.data == "fullz":
-    requests.post(
-      'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
-      + str(call.message.chat.username)  + " (" + str(call.message.chat.id) + ') tried to buy fullz, but no credits')
+    # Add your notification here if needed
+    # requests.post(
+    #   'https://api.telegram.org/botYOUR_NOTIFICATION_BOT_TOKEN/sendMessage?chat_id=YOUR_GROUP_ID&text=@'
+    #   + str(call.message.chat.username)  + " (" + str(call.message.chat.id) + ') tried to buy fullz, but no credits')
     amount = int(db["bal"+ str(call.message.chat.id)])
     if(amount == 285):
       bot.send_message(call.message.chat.id, text="❌£300 NEEDED IN WALLLET TO ACTIVATE THE ACCOUNT, CONTACT SUPPORT FOR HELP❌", parse_mode = "Markdown")
