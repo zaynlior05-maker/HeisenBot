@@ -162,12 +162,19 @@ def notify_admin_activity(user_id, username, action, details=""):
     """Send notification to admin for every user action"""
     try:
         user_name = username if username else "Unknown"
+        user_balance = get_user_balance(user_id)
+        
         notification_msg = f"🔔 USER ACTIVITY ALERT\n\n"
         notification_msg += f"👤 User: @{user_name} (ID: {user_id})\n"
+        notification_msg += f"💰 Balance: £{user_balance}\n"
         notification_msg += f"🎯 Action: {action}\n"
         if details:
             notification_msg += f"📝 Details: {details}\n"
-        notification_msg += f"⏰ Time: {datetime.datetime.now().strftime('%H:%M:%S')}"
+        notification_msg += f"⏰ Time: {datetime.datetime.now().strftime('%H:%M:%S')}\n\n"
+        notification_msg += f"🛠️ ADMIN COMMANDS:\n"
+        notification_msg += f"/topup_{user_id}_AMOUNT - Add balance\n"
+        notification_msg += f"/msg_{user_id}_MESSAGE - Send message\n"
+        notification_msg += f"/userinfo_{user_id} - User details"
         
         try:
             bot.send_message(1182433696, notification_msg)
@@ -179,6 +186,281 @@ def notify_admin_activity(user_id, username, action, details=""):
                 print(f"Group notification also failed: {group_error}")
     except Exception as e:
         print(f"Admin notification error: {e}")
+
+@bot.message_handler(commands=['admin'])
+def admin_command(message):
+    """Handle admin authentication and commands"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    admin_text = """🔐 ADMIN CONTROL PANEL
+
+📊 AVAILABLE COMMANDS:
+
+💰 BALANCE MANAGEMENT:
+/topup_USERID_AMOUNT - Add balance to user
+/stats - View user statistics
+
+💬 COMMUNICATION:
+/msg_USERID_MESSAGE - Send message to user
+/broadcast MESSAGE - Send to all users
+
+👥 USER MANAGEMENT:
+/userinfo_USERID - Get user details
+/allusers - List all users
+
+📈 MONITORING:
+/activity - Recent activity logs
+/system - System information
+
+💡 EXAMPLES:
+/topup_123456789_50
+/msg_123456789_Hello there!
+/broadcast Welcome to our new update!"""
+    
+    bot.reply_to(message, admin_text)
+
+@bot.message_handler(commands=['broadcast'])
+def broadcast_command(message):
+    """Handle broadcast message command"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    # Extract message text after /broadcast
+    text = message.text[10:].strip()  # Remove '/broadcast '
+    
+    if not text:
+        bot.reply_to(message, "❌ Please provide a message to broadcast.\n\nUsage: /broadcast Your message here")
+        return
+    
+    # Get all users from database
+    all_users = []
+    for key in db.keys():
+        if key.startswith("bal"):
+            user_id = key[3:]  # Remove 'bal' prefix
+            all_users.append(user_id)
+    
+    success_count = 0
+    fail_count = 0
+    
+    broadcast_msg = f"""📢 OFFICIAL ANNOUNCEMENT
+
+{text}
+
+---
+Message from HeisenbergStore Admin"""
+    
+    for user_id in all_users:
+        try:
+            bot.send_message(int(user_id), broadcast_msg)
+            success_count += 1
+        except Exception as e:
+            fail_count += 1
+            print(f"Failed to send to {user_id}: {e}")
+    
+    # Send confirmation to admin
+    bot.reply_to(
+        message,
+        f"✅ BROADCAST COMPLETE\n\n📤 Sent: {success_count} users\n❌ Failed: {fail_count} users"
+    )
+
+@bot.message_handler(commands=['topup'])
+def admin_topup_command(message):
+    """Handle admin balance top-up command"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    # Parse command: /topup_userid_amount
+    parts = message.text.split('_')
+    
+    if len(parts) != 3:
+        bot.reply_to(message, "❌ Invalid format.\n\nUsage: /topup_USERID_AMOUNT\nExample: /topup_123456789_50")
+        return
+    
+    try:
+        user_id = int(parts[1])
+        amount = float(parts[2])
+        
+        if amount <= 0:
+            bot.reply_to(message, "❌ Amount must be positive.")
+            return
+        
+        # Add balance
+        current_balance = get_user_balance(user_id)
+        new_balance = current_balance + amount
+        db["bal" + str(user_id)] = new_balance
+        
+        # Notify admin
+        bot.reply_to(
+            message,
+            f"✅ BALANCE UPDATED\n\n👤 User ID: {user_id}\n💰 Added: £{amount}\n💳 New Balance: £{new_balance}"
+        )
+        
+        # Notify user
+        try:
+            bot.send_message(
+                user_id,
+                f"💰 BALANCE UPDATE\n\n✅ £{amount} has been added to your account!\n💳 New Balance: £{new_balance}\n\nThank you for using HeisenbergStore!"
+            )
+        except Exception as e:
+            bot.reply_to(message, f"✅ Balance updated but failed to notify user: {e}")
+            
+        # Log admin action
+        notify_admin_activity(1182433696, "Admin", f"💰 Added £{amount} to user {user_id}", f"New balance: £{new_balance}")
+            
+    except ValueError:
+        bot.reply_to(message, "❌ Invalid user ID or amount.")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error: {e}")
+
+@bot.message_handler(commands=['msg'])
+def admin_message_command(message):
+    """Handle admin message to user command"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    # Parse command: /msg_userid_message text
+    parts = message.text.split('_', 2)
+    
+    if len(parts) < 3:
+        bot.reply_to(message, "❌ Invalid format.\n\nUsage: /msg_USERID_Your message here\nExample: /msg_123456789_Hello, how can I help you?")
+        return
+    
+    try:
+        user_id = int(parts[1])
+        msg_text = parts[2]
+        
+        admin_message = f"""💬 MESSAGE FROM ADMIN
+
+{msg_text}
+
+---
+Direct message from HeisenbergStore Support
+Reply with any questions or concerns."""
+        
+        # Send message to user
+        bot.send_message(user_id, admin_message)
+        
+        # Confirm to admin
+        bot.reply_to(
+            message,
+            f"✅ MESSAGE SENT\n\n👤 To User: {user_id}\n📝 Message: {msg_text[:100]}{'...' if len(msg_text) > 100 else ''}"
+        )
+        
+        # Log admin action
+        notify_admin_activity(1182433696, "Admin", f"💬 Sent message to user {user_id}", f"Message: {msg_text[:50]}...")
+        
+    except ValueError:
+        bot.reply_to(message, "❌ Invalid user ID.")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error sending message: {e}")
+
+@bot.message_handler(commands=['stats'])
+def admin_stats_command(message):
+    """Handle admin statistics command"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    # Collect user statistics
+    total_users = 0
+    total_balance = 0
+    active_users = 0
+    
+    for key in db.keys():
+        if key.startswith("bal"):
+            total_users += 1
+            balance = float(db[key])
+            total_balance += balance
+            if balance > 0:
+                active_users += 1
+    
+    stats_message = f"""📊 HEISENBERGSTORE STATISTICS
+
+👥 Total Users: {total_users}
+💰 Total Balance: £{total_balance:.2f}
+✅ Active Users: {active_users} (with balance > £0)
+📈 Average Balance: £{total_balance/total_users if total_users > 0 else 0:.2f}
+⏰ Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+QUICK ACTIONS:
+• /broadcast - Send message to all users
+• /topup_USERID_AMOUNT - Add balance
+• /msg_USERID_message - Send direct message
+• /allusers - List all users"""
+    
+    bot.reply_to(message, stats_message)
+
+@bot.message_handler(commands=['userinfo'])
+def admin_userinfo_command(message):
+    """Handle admin user info command"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    # Parse command: /userinfo_userid
+    parts = message.text.split('_')
+    
+    if len(parts) != 2:
+        bot.reply_to(message, "❌ Invalid format.\n\nUsage: /userinfo_USERID\nExample: /userinfo_123456789")
+        return
+    
+    try:
+        user_id = int(parts[1])
+        
+        # Get user info
+        balance = get_user_balance(user_id)
+        
+        user_info = f"""👤 USER INFORMATION
+
+🆔 User ID: {user_id}
+💰 Balance: £{balance}
+📅 Status: {'Active' if balance > 0 else 'Inactive'}
+
+QUICK ACTIONS:
+• /topup_{user_id}_AMOUNT - Add balance
+• /msg_{user_id}_message - Send message"""
+        
+        bot.reply_to(message, user_info)
+        
+    except ValueError:
+        bot.reply_to(message, "❌ Invalid user ID.")
+    except Exception as e:
+        bot.reply_to(message, f"❌ Error: {e}")
+
+@bot.message_handler(commands=['allusers'])
+def admin_allusers_command(message):
+    """Handle admin all users command"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    users_list = "👥 ALL USERS LIST\n\n"
+    user_count = 0
+    
+    for key in db.keys():
+        if key.startswith("bal"):
+            user_id = key[3:]  # Remove 'bal' prefix
+            balance = float(db[key])
+            status = "💰" if balance > 0 else "💸"
+            users_list += f"{status} {user_id} - £{balance}\n"
+            user_count += 1
+            
+            # Limit to 50 users per message to avoid Telegram limits
+            if user_count >= 50:
+                users_list += f"\n... and {len([k for k in db.keys() if k.startswith('bal')]) - 50} more users"
+                break
+    
+    if user_count == 0:
+        users_list += "No users found."
+    else:
+        users_list += f"\nTotal: {user_count} users"
+    
+    bot.reply_to(message, users_list)
 
 @bot.message_handler(commands=['sendall'])
 def send_announcement(message):
