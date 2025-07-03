@@ -240,10 +240,9 @@ def handle_keyboard_buttons(message):
         notify_admin_activity(message.chat.id, message.chat.username, "💷 Wallet", "Used shortcut button")
         # Send wallet menu
         inline_keyboard2 = types.InlineKeyboardMarkup()
-        inline_keyboard2.add(btn_20, btn_30)
-        inline_keyboard2.add(btn_50, btn_70)
-        inline_keyboard2.add(btn_100, btn_150)
-        inline_keyboard2.add(btn_200)
+        inline_keyboard2.add(btn_70)  # Feature £70 as main amount
+        inline_keyboard2.add(btn_50, btn_100)
+        inline_keyboard2.add(btn_150, btn_200)
         inline_keyboard2.add(btn_menu)
         
         try:
