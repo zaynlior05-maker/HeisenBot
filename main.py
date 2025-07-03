@@ -73,8 +73,10 @@ btn_prev = types.InlineKeyboardButton('◀️ Previous Menu', callback_data='sto
 custom_keyboard = [['🛒 Store', '💷 Wallet'],
                    ['☎️ Support', '🛡️ Rules', '📁 Updates Channel']]
 
-# Main menu persistent button
+# Main menu persistent button with full menu options
 main_menu_keyboard = telebot.types.ReplyKeyboardMarkup(True, False)
+main_menu_keyboard.add('🛒 Store', '💷 Wallet')
+main_menu_keyboard.add('☎️ Support', '🛡️ Rules')
 main_menu_keyboard.add('🌎 Main Menu')
 
 reply_markup = telebot.types.ReplyKeyboardMarkup(True, False)
@@ -236,10 +238,40 @@ def send_welcome(message):
     # Send the persistent keyboard separately
     bot.send_message(message.chat.id, "Use the menu below:", reply_markup=main_menu_keyboard)
 
-@bot.message_handler(func=lambda message: message.text == "🌎 Main Menu")
-def handle_main_menu_button(message):
-    notify_admin_activity(message.chat.id, message.chat.username, "🏠 Main Menu", "Used shortcut button")
-    send_welcome(message)
+@bot.message_handler(func=lambda message: message.text in ["🌎 Main Menu", "🛒 Store", "💷 Wallet", "☎️ Support", "🛡️ Rules"])
+def handle_keyboard_buttons(message):
+    if message.text == "🌎 Main Menu":
+        notify_admin_activity(message.chat.id, message.chat.username, "🏠 Main Menu", "Used shortcut button")
+        send_welcome(message)
+    elif message.text == "🛒 Store":
+        notify_admin_activity(message.chat.id, message.chat.username, "🛒 Store", "Used shortcut button")
+        # Create mock message for existing functions
+        mock_msg = type('MockMessage', (), {
+            'chat': type('Chat', (), {'id': message.chat.id})(),
+            'message_id': message.message_id
+        })()
+        open_binlist(mock_msg)
+    elif message.text == "💷 Wallet":
+        notify_admin_activity(message.chat.id, message.chat.username, "💷 Wallet", "Used shortcut button")
+        mock_msg = type('MockMessage', (), {
+            'chat': type('Chat', (), {'id': message.chat.id})(),
+            'message_id': message.message_id
+        })()
+        open_wallet(mock_msg)
+    elif message.text == "☎️ Support":
+        notify_admin_activity(message.chat.id, message.chat.username, "☎️ Support", "Used shortcut button")
+        mock_msg = type('MockMessage', (), {
+            'chat': type('Chat', (), {'id': message.chat.id})(),
+            'message_id': message.message_id
+        })()
+        open_support(mock_msg)
+    elif message.text == "🛡️ Rules":
+        notify_admin_activity(message.chat.id, message.chat.username, "🛡️ Rules", "Used shortcut button")
+        mock_msg = type('MockMessage', (), {
+            'chat': type('Chat', (), {'id': message.chat.id})(),
+            'message_id': message.message_id
+        })()
+        open_rules(mock_msg)
 
 def open_binlist(message):
     bot.edit_message_text(
