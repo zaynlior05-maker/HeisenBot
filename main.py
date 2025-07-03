@@ -92,10 +92,11 @@ btn_support = types.InlineKeyboardButton('☎️ Support', callback_data='suppor
 btn_rules = types.InlineKeyboardButton('🛡️ Rules', callback_data='rules')
 btn_updates = types.InlineKeyboardButton('📁 Updates Channel', callback_data='updates')
 
-btn_search = types.InlineKeyboardButton('🔎 Search for BIN', callback_data='search')
+btn_search = types.InlineKeyboardButton('🔍 Search', callback_data='search')
 btn_searchagn = types.InlineKeyboardButton('🔎 Search Again', callback_data='search')
 btn_cancel = types.InlineKeyboardButton('❌', callback_data='cancel')
 btn_menu = types.InlineKeyboardButton('🌎 Main Menu', callback_data='menu')
+btn_prev = types.InlineKeyboardButton('🔙 Previous Menu', callback_data='store')
 
 btn_20 = types.InlineKeyboardButton('🔸£20🔸', callback_data='btc20')
 btn_30 = types.InlineKeyboardButton('🔸£30🔸', callback_data='btc30')
@@ -1159,6 +1160,197 @@ def open_search(message):
     sent_msg = bot.send_message(message.chat.id, "<code>-- 🔎 Bin Search --</code>\nType the 6 digit bin you want to look for", parse_mode="HTML")
     bot.register_next_step_handler(sent_msg, bin_handler)
 
+def open_bin_search_menu(message):
+    """Display BIN search menu with common BIN prefixes"""
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    # Common BIN prefixes for quick search
+    bin_prefixes = [
+        ("405497", "405497 - Australian BINs"),
+        ("465865", "465865 - UK Premium"),
+        ("537410", "537410 - UK Standard"),
+        ("423953", "423953 - UK Classic"),
+        ("456409", "456409 - UK Business"),
+        ("Custom", "🔍 Custom BIN Search")
+    ]
+    
+    for prefix, label in bin_prefixes:
+        if prefix == "Custom":
+            btn = types.InlineKeyboardButton(label, callback_data=f'binsearch_custom')
+        else:
+            btn = types.InlineKeyboardButton(label, callback_data=f'binsearch_{prefix}')
+        inline_keyboard2.add(btn)
+    
+    # Add navigation buttons
+    inline_keyboard2.add(btn_store)
+    inline_keyboard2.add(btn_menu)
+    
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        text="🔍 **BIN Search Menu**\n\nSelect a BIN prefix to search or use custom search:\n\n**Quick Search Options:**",
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+
+def handle_bin_search_results(call):
+    """Handle BIN search results and display matching items"""
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    if call.data == "binsearch_custom":
+        # For custom search, prompt for input
+        sent_msg = bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="🔍 **Custom BIN Search**\n\nEnter the BIN number or name to search:",
+            parse_mode="Markdown"
+        )
+        bot.register_next_step_handler(sent_msg, handle_custom_bin_search)
+        return
+    
+    # Extract BIN prefix from callback data
+    bin_prefix = call.data.replace("binsearch_", "")
+    
+    # Search through all base files
+    results = []
+    base_files = [
+        ("base2/fullz2.txt", "Heisen_Uk_Fresh_Base", "£30"),
+        ("base3/fullz3.txt", "Heisen_Aus_Fresh_Base", "£30"),
+        ("base5/fullz5.txt", "Heisen_10_Base", "£10")
+    ]
+    
+    for file_path, base_name, price in base_files:
+        try:
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+                for line_num, line in enumerate(lines, 1):
+                    line_clean = line.strip()
+                    if bin_prefix in line_clean:
+                        results.append({
+                            'data': line_clean,
+                            'base': base_name,
+                            'price': price,
+                            'line': line_num
+                        })
+        except FileNotFoundError:
+            continue
+    
+    # Display results as callback buttons
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    if results:
+        # Limit to first 15 results for better display
+        display_results = results[:15]
+        
+        for i, result in enumerate(display_results):
+            # Create short display text for button
+            parts = result['data'].split('|')
+            if len(parts) >= 4:
+                bin_num = parts[0]
+                name = parts[3]
+                short_text = f"{bin_num} - {name[:15]}... - {result['price']}"
+            else:
+                short_text = f"{result['data'][:30]}... - {result['price']}"
+            
+            btn = types.InlineKeyboardButton(short_text, callback_data=f'binshow_{i}')
+            inline_keyboard2.add(btn)
+        
+        result_text = f"🔍 **Search Results for BIN: {bin_prefix}**\n\n📊 **Found:** {len(results)} matches"
+        if len(results) > 15:
+            result_text += f" (showing first 15)"
+        result_text += f"\n\n**Click any result to view full details:**"
+        
+        # Store results in a temporary way for callback handling
+        # For this implementation, we'll show them directly
+        
+    else:
+        result_text = f"🔍 **Search Results for BIN: {bin_prefix}**\n\n❌ **No matches found**\n\nTry a different BIN prefix."
+    
+    # Add navigation buttons
+    inline_keyboard2.add(btn_search)
+    inline_keyboard2.add(btn_store)
+    inline_keyboard2.add(btn_menu)
+    
+    bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=result_text,
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+    
+    # Log search activity
+    notify_admin_activity(user_id, username, "🔍 BIN Search", f"Searched for BIN: {bin_prefix} - {len(results)} results found")
+
+def handle_custom_bin_search(message):
+    """Handle custom BIN search input"""
+    search_query = message.text.strip()
+    
+    if len(search_query) < 3:
+        bot.send_message(
+            message.chat.id,
+            "❌ **Search query too short**\n\nPlease enter at least 3 characters.",
+            parse_mode="Markdown"
+        )
+        return
+    
+    results = []
+    base_files = [
+        ("base2/fullz2.txt", "Heisen_Uk_Fresh_Base", "£30"),
+        ("base3/fullz3.txt", "Heisen_Aus_Fresh_Base", "£30"),
+        ("base5/fullz5.txt", "Heisen_10_Base", "£10")
+    ]
+    
+    for file_path, base_name, price in base_files:
+        try:
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+                for line_num, line in enumerate(lines, 1):
+                    line_clean = line.strip()
+                    if search_query.lower() in line_clean.lower():
+                        results.append({
+                            'data': line_clean,
+                            'base': base_name,
+                            'price': price,
+                            'line': line_num
+                        })
+        except FileNotFoundError:
+            continue
+    
+    # Display results
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    if results:
+        display_results = results[:10]
+        result_text = f"🔍 **Search Results for:** {search_query}\n\n📊 **Found:** {len(results)} matches"
+        if len(results) > 10:
+            result_text += f" (showing first 10)"
+        result_text += "\n\n"
+        
+        for i, result in enumerate(display_results, 1):
+            display_data = result['data'][:60] + "..." if len(result['data']) > 60 else result['data']
+            result_text += f"**{i}.** `{display_data}`\n"
+            result_text += f"🏷️ **Base:** {result['base']} | 💰 **Price:** {result['price']}\n\n"
+        
+        result_text += "💡 **Tip:** Navigate to the specific base to purchase items."
+    else:
+        result_text = f"🔍 **Search Results for:** {search_query}\n\n❌ **No matches found**\n\nTry different keywords."
+    
+    inline_keyboard2.add(btn_search)
+    inline_keyboard2.add(btn_store)
+    inline_keyboard2.add(btn_menu)
+    
+    bot.send_message(
+        message.chat.id,
+        result_text,
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+    
+    # Log search activity
+    notify_admin_activity(message.chat.id, message.chat.username, "🔍 Custom Search", f"'{search_query}' - {len(results)} results found")
+
 def handle_fullz_search(message):
     """Handle search functionality across all bases"""
     search_query = message.text.strip().lower()
@@ -1326,14 +1518,8 @@ def callback_query(call):
     if call.data == "store":
         open_binlist(call.message)
     elif call.data == "search":
-        # Call fullz search function
-        sent_msg = bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text="🔍 **Fullz Search**\n\nType keywords to search across all bases:\n• Names, postcodes, BIN numbers\n• Minimum 3 characters required\n• Searches UK Fresh, Australian Fresh, and £10 bases\n\n**Enter your search term:**",
-            parse_mode="Markdown"
-        )
-        bot.register_next_step_handler(sent_msg, handle_fullz_search)
+        # Call BIN search with callback interface
+        open_bin_search_menu(call.message)
     elif call.data == "cancel":
         cancel(call.message)
     elif call.data == "wallet":
@@ -1383,6 +1569,9 @@ def callback_query(call):
     elif call.data.startswith("tool_"):
         # Handle tool contact requests
         handle_tools_contact(call)
+    elif call.data.startswith("binsearch_"):
+        # Handle BIN search results
+        handle_bin_search_results(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
