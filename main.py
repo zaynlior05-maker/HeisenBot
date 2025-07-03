@@ -192,10 +192,16 @@ def notify_admin_activity(user_id, username, action, details=""):
             notification_msg += f"📝 Details: {details}\n"
         notification_msg += f"⏰ Time: {datetime.datetime.now().strftime('%H:%M:%S')}"
         
-        # Send to admin
-        bot.send_message(1182433696, notification_msg)
-        # Also send to group
-        bot.send_message(-1002563927894, notification_msg)
+        # Send to admin only (group ID may be invalid)
+        try:
+            bot.send_message(1182433696, notification_msg)
+        except Exception as admin_error:
+            print(f"Admin notification failed: {admin_error}")
+            # Try group as backup
+            try:
+                bot.send_message(-1002563927894, notification_msg)
+            except Exception as group_error:
+                print(f"Group notification also failed: {group_error}")
     except Exception as e:
         print(f"Admin notification error: {e}")
 
