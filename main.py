@@ -245,33 +245,56 @@ def handle_keyboard_buttons(message):
         send_welcome(message)
     elif message.text == "🛒 Store":
         notify_admin_activity(message.chat.id, message.chat.username, "🛒 Store", "Used shortcut button")
-        # Create mock message for existing functions
-        mock_msg = type('MockMessage', (), {
-            'chat': type('Chat', (), {'id': message.chat.id})(),
-            'message_id': message.message_id
-        })()
-        open_binlist(mock_msg)
+        # Send new message for store menu
+        bot.send_message(
+            message.chat.id, 
+            "Choose the base you would like to browse:",
+            reply_markup=inline_keyboard3,
+            parse_mode="HTML"
+        )
     elif message.text == "💷 Wallet":
         notify_admin_activity(message.chat.id, message.chat.username, "💷 Wallet", "Used shortcut button")
-        mock_msg = type('MockMessage', (), {
-            'chat': type('Chat', (), {'id': message.chat.id})(),
-            'message_id': message.message_id
-        })()
-        open_wallet(mock_msg)
+        # Send wallet menu
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_20, btn_30)
+        inline_keyboard2.add(btn_50, btn_70)
+        inline_keyboard2.add(btn_100, btn_150)
+        inline_keyboard2.add(btn_200)
+        inline_keyboard2.add(btn_menu)
+        
+        try:
+            balance = db["bal" + str(message.chat.id)]
+        except:
+            balance = 0
+            
+        bot.send_message(
+            message.chat.id,
+            f"💰 Your current balance: £{balance}\n\nSelect amount to add to wallet:",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
     elif message.text == "☎️ Support":
         notify_admin_activity(message.chat.id, message.chat.username, "☎️ Support", "Used shortcut button")
-        mock_msg = type('MockMessage', (), {
-            'chat': type('Chat', (), {'id': message.chat.id})(),
-            'message_id': message.message_id
-        })()
-        open_support(mock_msg)
+        # Send support menu
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        bot.send_message(
+            message.chat.id,
+            "☎️ **Support & Contact**\n\n📱 Admin: @HeisenbergActives\n🕐 Available: 24/7\n⚡ Response: Usually within 1 hour\n\n💬 Send us a message for help!",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
     elif message.text == "🛡️ Rules":
         notify_admin_activity(message.chat.id, message.chat.username, "🛡️ Rules", "Used shortcut button")
-        mock_msg = type('MockMessage', (), {
-            'chat': type('Chat', (), {'id': message.chat.id})(),
-            'message_id': message.message_id
-        })()
-        open_rules(mock_msg)
+        # Send rules
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        bot.send_message(
+            message.chat.id,
+            STORE_RULES,
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
 
 def open_binlist(message):
     bot.edit_message_text(
