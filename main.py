@@ -591,19 +591,46 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    # Force polling mode only - no Flask deployment
+    # Force polling mode only - resolve conflicts
     print("🚀 Starting Heisenberg Store Bot in polling mode...")
+    
+    # Clean up any existing connections
     try:
-        bot.remove_webhook()  # Remove any existing webhook
+        bot.remove_webhook(drop_pending_updates=True)
         print("✓ Webhook removed successfully")
-        print("✓ Bot is now active - users can send /start")
-        bot.infinity_polling(timeout=10, long_polling_timeout=5)
     except Exception as e:
-        print(f"❌ Bot polling failed: {e}")
-        print("🔄 Retrying with basic polling...")
+        print(f"⚠️ Webhook removal: {e}")
+    
+    # Wait for Telegram API to clear
+    time.sleep(3)
+    
+    # Start with robust error handling
+    retry_attempts = 0
+    max_retries = 3
+    
+    while retry_attempts < max_retries:
         try:
-            bot.polling(none_stop=True, interval=1, timeout=10)
-        except Exception as retry_error:
-            print(f"❌ All polling methods failed: {retry_error}")
+            print("✓ Bot is now active - users can send /start")
+            bot.infinity_polling(
+                timeout=20,
+                long_polling_timeout=10,
+                skip_pending=True,
+                none_stop=True
+            )
+            break
+        except Exception as e:
+            retry_attempts += 1
+            print(f"❌ Attempt {retry_attempts} failed: {e}")
+            if retry_attempts < max_retries:
+                wait_time = 10 * retry_attempts
+                print(f"🔄 Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+            else:
+                print("❌ Starting basic polling as fallback...")
+                try:
+                    bot.polling(none_stop=True, interval=2, timeout=15)
+                except Exception as final_error:
+                    print(f"❌ All methods failed: {final_error}")
+                    time.sleep(60)  # Wait before restart
             
 # Remove Flask app startup to prevent deployment mode conflicts
