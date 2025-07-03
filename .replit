@@ -30,3 +30,4 @@ externalPort = 80
 
 [deployment]
 deploymentTarget = "cloudrun"
+run = "python main.py"
