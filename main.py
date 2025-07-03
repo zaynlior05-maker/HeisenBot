@@ -338,6 +338,9 @@ def open_base(message, base):
             reply_markup=inline_keyboard2,
             parse_mode="Markdown"
         )
+    elif base == "2":
+        # Special handling for base2 (Heisen_Uk_Fresh_Base) with £30 pricing and pagination
+        open_uk_fresh_page(message, 1)  # Start with page 1
     else:
         # Original handling for other bases
         inline_keyboard2 = types.InlineKeyboardMarkup()
@@ -506,8 +509,8 @@ def handle_skipper_purchase(call):
         admin_message = f"🔔 **NEW SKIPPER PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔸 **Product:** {product_name}\n💰 **Price:** £{price}\n📊 **Skip Info:** {skip_info}\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
         
         try:
-            bot.send_message(ADMIN_ID_001, admin_message, parse_mode="Markdown")
-            bot.send_message(GROUP_ID_001, admin_message, parse_mode="Markdown")
+            bot.send_message(ADMIN_ID, admin_message, parse_mode="Markdown")
+            bot.send_message(GROUP_CHAT_ID, admin_message, parse_mode="Markdown")
         except Exception as e:
             print(f"Failed to notify admin: {e}")
         
@@ -525,6 +528,132 @@ def handle_skipper_purchase(call):
             chat_id=user_id,
             message_id=call.message.message_id,
             text=f"❌ **Insufficient Balance**\n\n🔸 **Product:** {product_name}\n💰 **Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+
+def open_uk_fresh_page(message, page=1):
+    """Display UK fresh base with pagination (25 items per page)"""
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    # Generate sample UK data (you can replace this with your actual data)
+    all_uk_data = []
+    for i in range(1, 101):  # Generate 100 sample entries
+        postcode_samples = ["SW1A 1AA", "M1 1AA", "B1 1AA", "LS1 1AA", "NE1 1AA", "GL1 1AA", "CV1 1AA", "S1 1AA", "L1 1AA", "BD1 1AA"]
+        postcode = postcode_samples[i % len(postcode_samples)]
+        bin_num = 424242 + i
+        all_uk_data.append(f"UK BIN: {bin_num} | PostCode: {postcode}")
+    
+    # Try to load from file if it exists
+    try:
+        with open("base2/fullz2.txt") as file:
+            all_uk_data = [line.strip() for line in file if line.strip()]
+    except FileNotFoundError:
+        pass  # Use sample data
+    
+    # Pagination logic
+    items_per_page = 25
+    total_items = len(all_uk_data)
+    total_pages = (total_items + items_per_page - 1) // items_per_page
+    
+    if page > total_pages:
+        page = total_pages
+    if page < 1:
+        page = 1
+    
+    start_idx = (page - 1) * items_per_page
+    end_idx = min(start_idx + items_per_page, total_items)
+    page_items = all_uk_data[start_idx:end_idx]
+    
+    # Add product buttons for current page
+    for item in page_items:
+        btn = types.InlineKeyboardButton(f"🔸 {item} - £30", callback_data=f'ukfresh_{item}')
+        inline_keyboard2.add(btn)
+    
+    # Add pagination buttons
+    pagination_buttons = []
+    if page > 1:
+        pagination_buttons.append(types.InlineKeyboardButton("⬅️ Previous", callback_data=f'ukfresh_page_{page-1}'))
+    if page < total_pages:
+        pagination_buttons.append(types.InlineKeyboardButton("Next ➡️", callback_data=f'ukfresh_page_{page+1}'))
+    
+    if pagination_buttons:
+        if len(pagination_buttons) == 2:
+            inline_keyboard2.add(pagination_buttons[0], pagination_buttons[1])
+        else:
+            inline_keyboard2.add(pagination_buttons[0])
+    
+    # Add navigation buttons
+    inline_keyboard2.add(btn_prev)
+    inline_keyboard2.add(btn_menu)
+    
+    # Display message
+    page_text = f"💳 **Heisen UK Fresh Base** (Page {page}/{total_pages})\n\n💰 **Price:** £30 per item\n✅ **Fresh UK BINs with PostCodes**\n📊 **Showing:** {len(page_items)} of {total_items} items\n\n**Select an item to purchase:**"
+    
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        text=page_text,
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+
+def handle_ukfresh_purchase(call):
+    """Handle purchase of UK fresh base items"""
+    # Extract product info from callback data (ukfresh_product_data)
+    product_data = call.data.replace("ukfresh_", "")
+    price = 30  # Fixed price for UK fresh base
+    
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Check user balance
+    try:
+        current_balance = db["bal" + str(user_id)]
+    except:
+        current_balance = 0
+    
+    # Process purchase
+    if current_balance >= price:
+        # Deduct amount from balance
+        db["bal" + str(user_id)] = current_balance - price
+        new_balance = current_balance - price
+        
+        # Notify user of successful purchase
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"✅ **Purchase Successful!**\n\n🔸 **Product:** {product_data}\n💰 **Price:** £{price}\n🇬🇧 **Type:** UK Fresh Base\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+        
+        # Notify admin for manual delivery
+        admin_message = f"🔔 **NEW UK FRESH BASE PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔸 **Product:** {product_data}\n💰 **Price:** £{price}\n🇬🇧 **Type:** UK Fresh Base\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
+        
+        try:
+            bot.send_message(ADMIN_ID, admin_message, parse_mode="Markdown")
+            bot.send_message(GROUP_CHAT_ID, admin_message, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Failed to notify admin: {e}")
+        
+        # Log the purchase
+        notify_admin_activity(user_id, username, "💳 UK Fresh Purchase", f"{product_data} - £{price}")
+        
+    else:
+        # Insufficient balance
+        needed = price - current_balance
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_wallet)
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"❌ **Insufficient Balance**\n\n🔸 **Product:** {product_data}\n💰 **Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
             reply_markup=inline_keyboard2,
             parse_mode="Markdown"
         )
@@ -644,6 +773,13 @@ def callback_query(call):
     elif call.data.startswith("skipper_"):
         # Handle skipper product purchases
         handle_skipper_purchase(call)
+    elif call.data.startswith("ukfresh_page_"):
+        # Handle UK fresh base pagination
+        page = int(call.data.split("_")[-1])
+        open_uk_fresh_page(call.message, page)
+    elif call.data.startswith("ukfresh_"):
+        # Handle UK fresh base purchases
+        handle_ukfresh_purchase(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
