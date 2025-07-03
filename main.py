@@ -341,6 +341,9 @@ def open_base(message, base):
     elif base == "2":
         # Special handling for base2 (Heisen_Uk_Fresh_Base) with £30 pricing and pagination
         open_uk_fresh_page(message, 1)  # Start with page 1
+    elif base == "3":
+        # Special handling for base3 (Heisen_Aus_Fresh_Base) with £30 pricing and pagination
+        open_aus_fresh_page(message, 1)  # Start with page 1
     else:
         # Original handling for other bases
         inline_keyboard2 = types.InlineKeyboardMarkup()
@@ -594,6 +597,142 @@ def open_uk_fresh_page(message, page=1):
         parse_mode="Markdown"
     )
 
+def open_aus_fresh_page(message, page=1):
+    """Display Australian fresh base with pagination (25 items per page)"""
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    # Load real Australian fresh base data
+    all_aus_data = []
+    try:
+        with open("base3/fullz3.txt") as file:
+            all_aus_data = [line.strip() for line in file if line.strip()]
+    except FileNotFoundError:
+        all_aus_data = ["No data available"]
+    
+    # Pagination logic
+    items_per_page = 25
+    total_items = len(all_aus_data)
+    total_pages = (total_items + items_per_page - 1) // items_per_page
+    
+    if page > total_pages:
+        page = total_pages
+    if page < 1:
+        page = 1
+    
+    start_idx = (page - 1) * items_per_page
+    end_idx = min(start_idx + items_per_page, total_items)
+    page_items = all_aus_data[start_idx:end_idx]
+    
+    # Add product buttons for current page
+    for idx, item in enumerate(page_items):
+        item_id = start_idx + idx + 1  # Create unique item ID
+        # Shorten button text to avoid callback data limits
+        short_text = item[:40] + "..." if len(item) > 40 else item
+        btn = types.InlineKeyboardButton(f"{short_text} - £30", callback_data=f'aus_{item_id}')
+        inline_keyboard2.add(btn)
+    
+    # Add pagination buttons
+    pagination_buttons = []
+    if page > 1:
+        pagination_buttons.append(types.InlineKeyboardButton("⬅️ Previous", callback_data=f'ausfresh_page_{page-1}'))
+    if page < total_pages:
+        pagination_buttons.append(types.InlineKeyboardButton("Next ➡️", callback_data=f'ausfresh_page_{page+1}'))
+    
+    if pagination_buttons:
+        if len(pagination_buttons) == 2:
+            inline_keyboard2.add(pagination_buttons[0], pagination_buttons[1])
+        else:
+            inline_keyboard2.add(pagination_buttons[0])
+    
+    # Add navigation buttons
+    inline_keyboard2.add(btn_prev)
+    inline_keyboard2.add(btn_menu)
+    
+    # Display message
+    page_text = f"🇦🇺 **Heisen Aus Fresh Base** (Page {page}/{total_pages})\n\n💰 **Price:** £30 per item\n✅ **Fresh Australian BINs with Postcodes**\n📊 **Showing:** {len(page_items)} of {total_items} items\n\n**Select an item to purchase:**"
+    
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        text=page_text,
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+
+def handle_ausfresh_purchase(call):
+    """Handle purchase of Australian fresh base items"""
+    # Extract item ID from callback data
+    item_id = int(call.data.replace("aus_", ""))
+    price = 30  # Fixed price for Australian fresh base
+    
+    # Load the same real Australian fresh base data
+    all_aus_data = []
+    try:
+        with open("base3/fullz3.txt") as file:
+            all_aus_data = [line.strip() for line in file if line.strip()]
+    except FileNotFoundError:
+        all_aus_data = []
+    
+    # Get the specific product data
+    if 1 <= item_id <= len(all_aus_data):
+        product_data = all_aus_data[item_id - 1]
+    else:
+        product_data = f"Australian Fresh Item #{item_id}"
+    
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Check user balance
+    try:
+        current_balance = db["bal" + str(user_id)]
+    except:
+        current_balance = 0
+    
+    # Process purchase
+    if current_balance >= price:
+        # Deduct amount from balance
+        db["bal" + str(user_id)] = current_balance - price
+        new_balance = current_balance - price
+        
+        # Notify user of successful purchase
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"✅ **Purchase Successful!**\n\n🔸 **Product:** {product_data}\n💰 **Price:** £{price}\n🇦🇺 **Type:** Australian Fresh Base\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+        
+        # Notify admin for manual delivery
+        admin_message = f"🔔 **NEW AUSTRALIAN FRESH BASE PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🔸 **Product:** {product_data}\n💰 **Price:** £{price}\n🇦🇺 **Type:** Australian Fresh Base\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
+        
+        try:
+            bot.send_message(ADMIN_ID, admin_message, parse_mode="Markdown")
+            bot.send_message(GROUP_CHAT_ID, admin_message, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Failed to notify admin: {e}")
+        
+        # Log the purchase
+        notify_admin_activity(user_id, username, "💳 Australian Fresh Purchase", f"{product_data} - £{price}")
+        
+    else:
+        # Insufficient balance
+        needed = price - current_balance
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_wallet)
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"❌ **Insufficient Balance**\n\n🔸 **Product:** {product_data}\n💰 **Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+
 def handle_ukfresh_purchase(call):
     """Handle purchase of UK fresh base items"""
     # Extract item ID from callback data
@@ -787,9 +926,16 @@ def callback_query(call):
         # Handle UK fresh base pagination
         page = int(call.data.split("_")[-1])
         open_uk_fresh_page(call.message, page)
+    elif call.data.startswith("ausfresh_page_"):
+        # Handle Australian fresh base pagination
+        page = int(call.data.split("_")[-1])
+        open_aus_fresh_page(call.message, page)
     elif call.data.startswith("uk_"):
         # Handle UK fresh base purchases
         handle_ukfresh_purchase(call)
+    elif call.data.startswith("aus_"):
+        # Handle Australian fresh base purchases
+        handle_ausfresh_purchase(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
