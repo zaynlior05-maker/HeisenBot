@@ -5,11 +5,11 @@ Constants and configuration for ExcelYard Bot
 import os
 
 # Bot API Configuration - CHANGE THIS TO YOUR BOT TOKEN
-API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', 'Stxdyw0rk')
+API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', '7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI')
 
 # Admin Configuration - CHANGE THESE TO YOUR DETAILS
 ADMIN_ID = int(os.getenv('ADMIN_ID', '1182433696'))  # Your actual user ID
-adminpass = os.getenv('ADMIN_PASSWORD', 'heisenberg2024')
+adminpass = os.getenv('ADMIN_PASSWORD', 'Stxdyw0rk')
 
 # Group Chat Configuration - CHANGE THESE TO YOUR GROUP IDs
 GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', '-1002563927894'))  # HeisenbergStoreUk group

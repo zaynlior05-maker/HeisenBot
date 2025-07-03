@@ -16,7 +16,6 @@ import time  #Ovo je
 import pandas as pd
 import math
 from replit import db
-import arg
 import os
 import shutil
 import re
