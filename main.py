@@ -30,6 +30,41 @@ block_io = BlockIo('83f2-1837-d7b3-096c', 'dEmG9a2eGmr5Tm2t', version)
 b = BtcConverter()
 bot = telebot.TeleBot(API_KEY_001, parse_mode=None)
 
+# Store Rules and Terms
+STORE_RULES = """🏪 HEISENBERG STORE - TERMS & CONDITIONS 🏪
+
+⚠️ IMPORTANT: READ CAREFULLY BEFORE PURCHASING ⚠️
+
+🔸 REFUND POLICY:
+• All sales are final once product is delivered
+• Refunds only for genuinely dead/invalid products
+• Must provide proof within 3 minutes of purchase
+• Screenshot must show card details clearly visible
+
+🔸 TESTING REQUIREMENTS:
+• Check cards immediately on pay.google.com
+• 3-minute window to report issues
+• Valid proof required for refund claims
+
+🔸 NON-REFUNDABLE ITEMS:
+• £5 and £10 base purchases
+• HSBC cards and affiliated banks
+• John Lewis, M&S, First Direct cards
+
+🔸 PAYMENT TERMS:
+• Bitcoin payments only
+• One transaction per wallet address
+• New wallet generated for each deposit
+• Payments are non-reversible
+
+🔸 SUPPORT & CONTACT:
+• 24/7 Support: @HeisenbergActives
+• Response time: Usually within 1 hour
+• Professional service guaranteed
+
+⚠️ BY PURCHASING YOU ACCEPT THESE TERMS ⚠️
+No exceptions • No warnings given • Terms are final"""
+
 
 btns = ['🛒 Store', '💷 Wallet', '☎️ Support', '🛡️ Rules', '📑 Updates Channel']
 
@@ -195,8 +230,7 @@ def send_welcome(message):
 
   bot.send_message(
     message.chat.id,
-    text=
-    "Refund Policy:\n\nIF YOU FAIL TO FOLLOW OUR CLEAR INSTRUCTED RULES YOU WILL NOT BE REFUNDED.\n\nHow to Apply for a Refund:\n\n1. Check card on pay.google.com\n\n2. If the card is dead, click refund at the bottom of purchased card.\n\n3. Send the bot a Screenshot/Photo that proves the card is dead.\n\n4. When checking card on pay.google.com, you have an automatic 3 minute timer. \n\n5. Failing to check card / provide proof of card being dead past the 3 minute timer can result in no refund. \n\n6. When providing a photo or a screenshot, please make sure: Card Number, Expiry Date and CCV are fully visible.\n\n7. If number doesn't call or is invalid this doesn't qualify for refund /unless all missing or fake info.\n\n8. If all the details are valid and the card is dead your account will be credited again with a refund within 5 minutes\n\n\nKeep in Mind: \n\n(£10 & £5 BASES ARE NOT REFUNDABLE) \n\n(HSBC CARDS ARE NOT REFUNDABLE\nOr ANY company under them such as John lewis,M&S, First direct ,etc)\n\n⛔️ NOTE ⛔️ \n\n🔹Support account is available 24/7 @HeisenSupportV2.\n\n🔹1 Transaction per wallet unless payment is underpaid. Our wallet always changes after each completed deposit.\n\n🔹Payment BTC ONLY\n\n🔹 BY PURCHASING YOU AGREE TO THESE RULES. FAILURE TO READ THEM WILL FORFEIT YOUR REFUND / REPLACEMENT. WE SHALL GIVE NO WARNINGS",
+    text=STORE_RULES,
     parse_mode="Markdown")
   msg = bot.send_message(
     message.chat.id,
@@ -340,8 +374,7 @@ def open_rules(message):
   bot.edit_message_text(
     chat_id=message.chat.id,
     message_id=message.message_id,
-    text=
-    "Refund Policy:\n\nIF YOU FAIL TO FOLLOW OUR CLEAR INSTRUCTED RULES YOU WILL NOT BE REFUNDED.\n\nHow to Apply for a Refund:\n\n1. Check card on pay.google.com\n\n2. If the card is dead, click refund at the bottom of purchased card.\n\n3. Send the bot a Screenshot/Photo that proves the card is dead.\n\n4. When checking card on pay.google.com, you have an automatic 3 minute timer. \n\n5. Failing to check card / provide proof of card being dead past the 3 minute timer can result in no refund. \n\n6. When providing a photo or a screenshot, please make sure: Card Number, Expiry Date and CCV are fully visible.\n\n7. If number doesn't call or is invalid this doesn't qualify for refund /unless all missing or fake info.\n\n8. If all the details are valid and the card is dead your account will be credited again with a refund within 5 minutes\n\n\nKeep in Mind: \n\n(£10 & £5 BASES ARE NOT REFUNDABLE) \n\n(HSBC CARDS ARE NOT REFUNDABLE\nOr ANY company under them such as John lewis,M&S, First direct ,etc)\n\n⛔️ NOTE ⛔️ \n\n🔹Support account is available 24/7 @HeisenSupportV2.\n\n🔹1 Transaction per wallet unless payment is underpaid. Our wallet always changes after each completed deposit.\n\n🔹Payment BTC ONLY\n\n🔹 BY PURCHASING YOU AGREE TO THESE RULES. FAILURE TO READ THEM WILL FORFEIT YOUR REFUND / REPLACEMENT. WE SHALL GIVE NO WARNINGS",
+    text=STORE_RULES,
     reply_markup=inline_keyboard2,
     parse_mode="Markdown")
 
