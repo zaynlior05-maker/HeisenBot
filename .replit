@@ -32,10 +32,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "HeisenbergBot"
+args = "HeisenbergStoreBot"
 
 [[workflows.workflow]]
-name = "HeisenbergBot"
+name = "HeisenbergStoreBot"
 author = "agent"
 
 [[workflows.workflow.tasks]]
