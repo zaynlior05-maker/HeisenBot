@@ -28,6 +28,9 @@ BITCOIN_RATES = {
     1000: 0.012856
 }
 
+# Bitcoin Wallet Address - ADD YOUR WALLET HERE
+BITCOIN_WALLET = "YOUR_BITCOIN_WALLET_ADDRESS_HERE"
+
 # Product Categories
 PRODUCT_CATEGORIES = {
     'fullz': {
