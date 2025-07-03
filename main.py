@@ -528,17 +528,27 @@ def set_webhook():
         bot.remove_webhook()
 
 if __name__ == '__main__':
-    try:
-        # Set webhook for deployment
-        set_webhook()
-        
-        # Run Flask app for webhook handling
-        port = int(os.environ.get('PORT', 5000))
-        print(f"Starting Flask app on 0.0.0.0:{port}")
-        app.run(host='0.0.0.0', port=port, debug=False)
-    except Exception as e:
-        print(f"Flask app failed to start: {e}")
-        print("Starting bot in polling mode as fallback...")
-        # Remove webhook and start polling
-        bot.remove_webhook()
-        bot.polling(none_stop=True, interval=0, timeout=20)
+    # Check if we're in deployment environment
+    repl_slug = os.environ.get('REPL_SLUG')
+    repl_owner = os.environ.get('REPL_OWNER')
+    
+    if repl_slug and repl_owner:
+        # Deployment mode - use webhook
+        try:
+            set_webhook()
+            port = int(os.environ.get('PORT', 5000))
+            print(f"Starting Flask app on 0.0.0.0:{port}")
+            app.run(host='0.0.0.0', port=port, debug=False)
+        except Exception as e:
+            print(f"Deployment failed: {e}")
+    else:
+        # Development mode - use polling
+        print("Development environment detected, starting bot in polling mode...")
+        try:
+            bot.remove_webhook()
+            print("Bot started successfully! Send /start to test.")
+            bot.polling(none_stop=True, interval=0, timeout=20)
+        except Exception as e:
+            print(f"Polling failed: {e}")
+            print("Retrying with infinity polling...")
+            bot.infinity_polling(timeout=10, long_polling_timeout=5)
