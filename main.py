@@ -73,6 +73,10 @@ btn_prev = types.InlineKeyboardButton('◀️ Previous Menu', callback_data='sto
 custom_keyboard = [['🛒 Store', '💷 Wallet'],
                    ['☎️ Support', '🛡️ Rules', '📁 Updates Channel']]
 
+# Main menu persistent button
+main_menu_keyboard = telebot.types.ReplyKeyboardMarkup(True, False)
+main_menu_keyboard.add('🌎 Main Menu')
+
 reply_markup = telebot.types.ReplyKeyboardMarkup(True, False)
 reply_markup.row(*custom_keyboard[0])
 reply_markup.row(*custom_keyboard[1])
@@ -213,6 +217,47 @@ def userbal(message):
         bot.send_message(message.chat.id, text="£" + str(credit) + " has been set to: " + str(id), parse_mode="Markdown")
     db["bal" + str(id)] = credit
 
+@bot.message_handler(content_types=['text'])
+def handle_text_messages(message):
+    if message.text == "🌎 Main Menu" or message.text in btns:
+        # Handle Main Menu button and existing buttons
+        if message.text == "🌎 Main Menu":
+            notify_admin_activity(message.chat.id, message.chat.username, "🏠 Main Menu", "Used shortcut button")
+            send_welcome(message)
+        elif message.text == "🛒 Store":
+            notify_admin_activity(message.chat.id, message.chat.username, "🛒 Store", "Used shortcut button")
+            # Create a message object for open_binlist
+            class MockMessage:
+                def __init__(self, chat_id):
+                    self.chat = type('obj', (object,), {'id': chat_id})
+                    self.message_id = message.message_id
+            mock_msg = MockMessage(message.chat.id)
+            open_binlist(mock_msg)
+        elif message.text == "💷 Wallet":
+            notify_admin_activity(message.chat.id, message.chat.username, "💷 Wallet", "Used shortcut button")
+            class MockMessage:
+                def __init__(self, chat_id):
+                    self.chat = type('obj', (object,), {'id': chat_id})
+                    self.message_id = message.message_id
+            mock_msg = MockMessage(message.chat.id)
+            open_wallet(mock_msg)
+        elif message.text == "☎️ Support":
+            notify_admin_activity(message.chat.id, message.chat.username, "☎️ Support", "Used shortcut button")
+            class MockMessage:
+                def __init__(self, chat_id):
+                    self.chat = type('obj', (object,), {'id': chat_id})
+                    self.message_id = message.message_id
+            mock_msg = MockMessage(message.chat.id)
+            open_support(mock_msg)
+        elif message.text == "🛡️ Rules":
+            notify_admin_activity(message.chat.id, message.chat.username, "🛡️ Rules", "Used shortcut button")
+            class MockMessage:
+                def __init__(self, chat_id):
+                    self.chat = type('obj', (object,), {'id': chat_id})
+                    self.message_id = message.message_id
+            mock_msg = MockMessage(message.chat.id)
+            open_rules(mock_msg)
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     notify_admin_activity(message.chat.id, message.chat.username, "🚀 Started Bot", "User initiated /start command")
@@ -222,7 +267,7 @@ def send_welcome(message):
     except:
         db["bal" + str(message.chat.id)] = 0
     
-    bot.send_message(message.chat.id, text=STORE_RULES, parse_mode="Markdown")
+    bot.send_message(message.chat.id, text=STORE_RULES, parse_mode="Markdown", reply_markup=main_menu_keyboard)
     msg = bot.send_message(
         message.chat.id,
         "Welcome to Heisenberg Store\n\nMade/Coded by @HeisenbergActives\n\nManaged by @HeisenbergActives\n\nUsername : <code>" + str(message.chat.username) + "</code>\nID: <code>" + str(message.chat.id) + "</code>",

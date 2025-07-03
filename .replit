@@ -5,24 +5,7 @@ channel = "stable-24_05"
 packages = ["glibcLocales"]
 
 [workflows]
-runButton = "Deploy Bot"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Bot"
-
-[[workflows.workflow]]
-name = "Bot"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Deploy Bot"
@@ -37,6 +20,23 @@ args = "python main.py"
 name = "Test Bot"
 author = 44344159
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "HeisenbergBot"
+
+[[workflows.workflow]]
+name = "HeisenbergBot"
+author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
