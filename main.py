@@ -554,26 +554,27 @@ def webhook():
 def health_check():
     return "Heisenberg Store Bot is running!"
 
-# Set webhook
+# Set webhook for deployment
 def set_webhook():
-    # Only set webhook if REPL_SLUG and REPL_OWNER are available (deployment environment)
     repl_slug = os.environ.get('REPL_SLUG')
     repl_owner = os.environ.get('REPL_OWNER')
     
     if repl_slug and repl_owner:
-        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
+        webhook_url = f"https://{repl_slug}-{repl_owner}.replit.app/{API_KEY_001}"
         try:
             bot.remove_webhook()
-            time.sleep(1)
-            bot.set_webhook(url=webhook_url)
-            print(f"Webhook set to: {webhook_url}")
+            time.sleep(2)
+            result = bot.set_webhook(url=webhook_url)
+            if result:
+                print(f"✓ Webhook set successfully: {webhook_url}")
+            else:
+                print(f"❌ Webhook setup failed")
         except Exception as e:
-            print(f"Webhook setup failed: {e}")
-            print("Falling back to polling mode...")
-            bot.remove_webhook()
+            print(f"❌ Webhook setup error: {e}")
+            raise e
     else:
-        print("Development environment detected, using polling mode")
-        bot.remove_webhook()
+        print("⚠ No deployment environment variables found")
+        raise Exception("Cannot set webhook without REPL_SLUG and REPL_OWNER")
 
 if __name__ == '__main__':
     # Set up bot commands menu for easy access
@@ -590,17 +591,32 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    # Always use polling mode for Replit
-    print("🚀 Starting Heisenberg Store Bot in polling mode...")
-    try:
-        bot.remove_webhook()  # Remove any existing webhook
-        print("✓ Webhook removed successfully")
-        print("✓ Bot is now active - users can send /start")
-        bot.infinity_polling(timeout=10, long_polling_timeout=5)
-    except Exception as e:
-        print(f"❌ Bot polling failed: {e}")
-        print("🔄 Retrying with basic polling...")
+    # Check if we're in deployment environment (has REPL_SLUG)
+    repl_slug = os.environ.get('REPL_SLUG')
+    repl_owner = os.environ.get('REPL_OWNER')
+    
+    if repl_slug and repl_owner:
+        # Deployment mode - use webhook with Flask
+        print("🚀 Starting Heisenberg Store Bot in deployment mode...")
         try:
-            bot.polling(none_stop=True, interval=1, timeout=10)
-        except Exception as retry_error:
-            print(f"❌ All polling methods failed: {retry_error}")
+            set_webhook()
+            port = int(os.environ.get('PORT', 5000))
+            print(f"✓ Starting Flask app on 0.0.0.0:{port}")
+            app.run(host='0.0.0.0', port=port, debug=False)
+        except Exception as e:
+            print(f"❌ Deployment failed: {e}")
+    else:
+        # Development mode - use polling
+        print("🚀 Starting Heisenberg Store Bot in development mode...")
+        try:
+            bot.remove_webhook()  # Remove any existing webhook
+            print("✓ Webhook removed successfully")
+            print("✓ Bot is now active - users can send /start")
+            bot.infinity_polling(timeout=10, long_polling_timeout=5)
+        except Exception as e:
+            print(f"❌ Bot polling failed: {e}")
+            print("🔄 Retrying with basic polling...")
+            try:
+                bot.polling(none_stop=True, interval=1, timeout=10)
+            except Exception as retry_error:
+                print(f"❌ All polling methods failed: {retry_error}")
