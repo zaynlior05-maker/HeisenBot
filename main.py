@@ -339,12 +339,20 @@ def open_base(message, base):
             parse_mode="Markdown"
         )
     else:
-        # Original handling for other bases
+        # Original handling for other bases with special pricing for base2
         inline_keyboard2 = types.InlineKeyboardMarkup()
+        
+        # Set pricing based on base
+        if base == "2":
+            callback_data = 'uk_fresh_30'  # Special handler for £30 UK Fresh Base
+            header_text = "**🇬🇧 Heisen UK Fresh Base - £30**\n\n✅ **Fresh UK Fullz Data**\n💳 **High Quality Records**\n\n**Select a record to purchase:**"
+        else:
+            callback_data = 'fullz'  # Standard fullz handler
+            header_text = "Buy the bin by clicking on it"
         
         with open("base" + str(base) + "/fullz" + str(base) + ".txt") as file:
             for line in file:
-                btn = types.InlineKeyboardButton(line.rstrip(), callback_data='fullz')
+                btn = types.InlineKeyboardButton(line.rstrip(), callback_data=callback_data)
                 inline_keyboard2.add(btn)
         
         inline_keyboard2.add(btn_prev)
@@ -352,9 +360,9 @@ def open_base(message, base):
         bot.edit_message_text(
             chat_id=message.chat.id,
             message_id=message.message_id,
-            text="Buy the bin by clicking on it",
+            text=header_text,
             reply_markup=inline_keyboard2,
-            parse_mode="HTML"
+            parse_mode="Markdown" if base == "2" else "HTML"
         )
 
 def open_wallet(message):
@@ -529,6 +537,63 @@ def handle_skipper_purchase(call):
             parse_mode="Markdown"
         )
 
+def handle_uk_fresh_purchase(call):
+    """Handle purchase of UK Fresh Base fullz at £30"""
+    price = 30
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Check user balance
+    try:
+        current_balance = db["bal" + str(user_id)]
+    except:
+        current_balance = 0
+    
+    # Process purchase
+    if current_balance >= price:
+        # Deduct amount from balance
+        db["bal" + str(user_id)] = current_balance - price
+        new_balance = current_balance - price
+        
+        # Notify user of successful purchase
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"✅ **Purchase Successful!**\n\n🇬🇧 **Product:** UK Fresh Base Fullz\n💰 **Price:** £{price}\n💳 **New Balance:** £{new_balance}\n\n⏳ **Delivery:** Manual delivery in progress\n📞 **Admin notified** for immediate processing",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+        
+        # Notify admin for manual delivery
+        admin_message = f"🔔 **NEW UK FRESH BASE PURCHASE**\n\n👤 **User:** @{username} (ID: {user_id})\n🇬🇧 **Product:** UK Fresh Base Fullz\n💰 **Price:** £{price}\n\n⚠️ **ACTION REQUIRED:** Manual delivery needed"
+        
+        try:
+            bot.send_message(ADMIN_ID_001, admin_message, parse_mode="Markdown")
+            bot.send_message(GROUP_ID_001, admin_message, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Failed to notify admin: {e}")
+        
+        # Log the purchase
+        notify_admin_activity(user_id, username, "💳 UK Fresh Purchase", f"UK Fresh Base Fullz - £{price}")
+        
+    else:
+        # Insufficient balance
+        needed = price - current_balance
+        inline_keyboard2 = types.InlineKeyboardMarkup()
+        inline_keyboard2.add(btn_wallet)
+        inline_keyboard2.add(btn_menu)
+        
+        bot.edit_message_text(
+            chat_id=user_id,
+            message_id=call.message.message_id,
+            text=f"❌ **Insufficient Balance**\n\n🇬🇧 **Product:** UK Fresh Base Fullz\n💰 **Price:** £{price}\n💳 **Your Balance:** £{current_balance}\n💸 **Need:** £{needed} more\n\n**Please top up your wallet to continue.**",
+            reply_markup=inline_keyboard2,
+            parse_mode="Markdown"
+        )
+
 def open_search(message):
     sent_msg = bot.send_message(message.chat.id, "<code>-- 🔎 Bin Search --</code>\nType the 6 digit bin you want to look for", parse_mode="HTML")
     bot.register_next_step_handler(sent_msg, bin_handler)
@@ -644,6 +709,9 @@ def callback_query(call):
     elif call.data.startswith("skipper_"):
         # Handle skipper product purchases
         handle_skipper_purchase(call)
+    elif call.data == "uk_fresh_30":
+        # Handle UK Fresh Base purchases at £30
+        handle_uk_fresh_purchase(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
