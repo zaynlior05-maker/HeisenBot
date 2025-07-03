@@ -4,16 +4,16 @@ Constants and configuration for ExcelYard Bot
 
 import os
 
-# Bot API Configuration
-API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', '7740679126:AAGcLtnHOiu_xhAIqxvR4StYf3xrg2mLqO8')
+# Bot API Configuration - CHANGE THIS TO YOUR BOT TOKEN
+API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 
-# Admin Configuration
-ADMIN_ID = int(os.getenv('ADMIN_ID', '5277124130'))
-adminpass = os.getenv('ADMIN_PASSWORD', 'excelyard2024')
+# Admin Configuration - CHANGE THESE TO YOUR DETAILS
+ADMIN_ID = int(os.getenv('ADMIN_ID', 'YOUR_ADMIN_USER_ID'))
+adminpass = os.getenv('ADMIN_PASSWORD', 'your_admin_password')
 
-# Group Chat Configuration
-GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', '-1002288838200'))
-LOG_GROUP_ID = int(os.getenv('LOG_GROUP_ID', '-1002288838200'))
+# Group Chat Configuration - CHANGE THESE TO YOUR GROUP IDs
+GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', 'YOUR_GROUP_CHAT_ID'))
+LOG_GROUP_ID = int(os.getenv('LOG_GROUP_ID', 'YOUR_LOG_GROUP_ID'))
 
 # Payment Configuration
 BITCOIN_RATES = {
@@ -71,7 +71,7 @@ PRICING = {
 
 # Bot Messages
 MESSAGES = {
-    'welcome': """🏪 **Welcome to ExcelYard**
+    'welcome': """🏪 **Welcome to YOUR_BOT_NAME**
 
 Your trusted marketplace for digital services.
 
@@ -79,7 +79,7 @@ Your trusted marketplace for digital services.
 
 Choose a category to explore our products:""",
     
-    'help': """🆘 **ExcelYard Help**
+    'help': """🆘 **YOUR_BOT_NAME Help**
 
 **Available Commands:**
 • /start - Main menu
@@ -98,7 +98,7 @@ Choose a category to explore our products:""",
 • Minimum deposit: £70
 
 **Support:**
-Contact @ExcelYardSupport for assistance""",
+Contact @YOUR_SUPPORT_USERNAME for assistance""",
     
     'balance': """💰 **Your Wallet Balance**
 
@@ -174,8 +174,8 @@ ENABLE_WALLET = True
 ENABLE_LOGGING = True
 ENABLE_ADMIN_NOTIFICATIONS = True
 
-# Contact Information
-SUPPORT_USERNAME = '@ExcelYardSupport'
-SUPPORT_CHANNEL = '@ExcelYardNews'
-TERMS_URL = 'https://excelyard.com/terms'
-PRIVACY_URL = 'https://excelyard.com/privacy'
+# Contact Information - CHANGE THESE TO YOUR DETAILS
+SUPPORT_USERNAME = '@YOUR_SUPPORT_USERNAME'
+SUPPORT_CHANNEL = '@YOUR_CHANNEL_USERNAME'
+TERMS_URL = 'https://your-website.com/terms'
+PRIVACY_URL = 'https://your-website.com/privacy'

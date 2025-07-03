@@ -11,9 +11,9 @@ import secrets
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-# Configuration
-ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
-ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'excelyard2024')
+# Configuration - CHANGE THESE TO YOUR ADMIN CREDENTIALS
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'your_admin_username')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'your_admin_password')
 
 class BotMonitor:
     def __init__(self):

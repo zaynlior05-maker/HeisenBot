@@ -28,10 +28,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Bot configuration
-API_KEY = os.getenv('TELEGRAM_BOT_TOKEN', '7740679126:AAGcLtnHOiu_xhAIqxvR4StYf3xrg2mLqO8')
-ADMIN_ID = int(os.getenv('ADMIN_ID', '5277124130'))
-GROUP_ID = int(os.getenv('GROUP_ID', '-1002288838200'))
+# Bot configuration - CHANGE THESE TO YOUR VALUES
+API_KEY = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
+ADMIN_ID = int(os.getenv('ADMIN_ID', 'YOUR_ADMIN_USER_ID'))
+GROUP_ID = int(os.getenv('GROUP_ID', 'YOUR_GROUP_CHAT_ID'))
 
 class ExcelYardBot:
     def __init__(self):
@@ -221,7 +221,7 @@ class ExcelYardBot:
             
             self.log_user_activity(user_id, username, "Bot Started", "Used /start command")
             
-            welcome_text = """🏪 **Welcome to ExcelYard**
+            welcome_text = """🏪 **Welcome to YOUR_BOT_NAME**
 
 Your trusted marketplace for digital services.
 
@@ -240,7 +240,7 @@ Choose a category to explore our products:""".format(balance=self.get_user_balan
                 logger.error(f"Start message error: {e}")
                 self.bot.send_message(
                     chat_id=message.chat.id,
-                    text="🏪 Welcome to ExcelYard\n\nChoose a category:",
+                    text="🏪 Welcome to YOUR_BOT_NAME\n\nChoose a category:",
                     reply_markup=self.create_main_menu()
                 )
         
@@ -315,7 +315,7 @@ Contact @ExcelYardSupport for assistance"""
                 if call.data == 'start':
                     self.log_user_activity(user_id, username, "Main Menu", "Returned to main menu")
                     
-                    welcome_text = """🏪 **Welcome to ExcelYard**
+                    welcome_text = """🏪 **Welcome to YOUR_BOT_NAME**
 
 Your trusted marketplace for digital services.
 

@@ -95,7 +95,25 @@ The application is designed for deployment on Replit with the following characte
 
 ## Changelog
 - July 03, 2025. Initial setup
+- July 03, 2025. Updated configuration files to make bot customizable with user's own details
+
+## Recent Changes
+
+### Configuration Customization (July 03, 2025)
+- Updated all configuration files to use placeholder values for easy customization
+- Created `config_setup.py` script for interactive configuration
+- Added comprehensive README.md with setup instructions
+- Modified constants.py, main.py, and web_interface.py to use customizable values
+- Added environment variable support for sensitive data
+
+### Files Modified for Customization
+- `constants.py`: Updated with placeholder bot token, admin ID, group IDs, and branding
+- `main.py`: Updated bot configuration and welcome messages
+- `web_interface.py`: Updated admin credentials
+- Added `config_setup.py`: Interactive setup script
+- Added `README.md`: Complete setup and usage guide
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+User wants to customize: Telegram API token, admin details, and all personal information.

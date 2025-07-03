@@ -13,19 +13,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Telegram Bot"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Web Dashboard"
-
-[[workflows.workflow]]
-name = "Telegram Bot"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pip install pyTelegramBotAPI flask requests && python main.py"
 
 [[workflows.workflow]]
 name = "Web Dashboard"
@@ -35,3 +23,7 @@ author = "agent"
 task = "shell.exec"
 args = "python web_interface.py"
 waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
