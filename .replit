@@ -15,6 +15,10 @@ author = "agent"
 task = "workflow.run"
 args = "Web Dashboard"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Bot Test"
+
 [[workflows.workflow]]
 name = "Web Dashboard"
 author = "agent"
@@ -23,6 +27,14 @@ author = "agent"
 task = "shell.exec"
 args = "python web_interface.py"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Bot Test"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
 
 [[ports]]
 localPort = 5000

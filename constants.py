@@ -5,15 +5,15 @@ Constants and configuration for ExcelYard Bot
 import os
 
 # Bot API Configuration - CHANGE THIS TO YOUR BOT TOKEN
-API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
+API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', '7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI')
 
 # Admin Configuration - CHANGE THESE TO YOUR DETAILS
-ADMIN_ID = int(os.getenv('ADMIN_ID', 'YOUR_ADMIN_USER_ID'))
-adminpass = os.getenv('ADMIN_PASSWORD', 'your_admin_password')
+ADMIN_ID = int(os.getenv('ADMIN_ID', '123456789'))  # Replace with your user ID
+adminpass = os.getenv('ADMIN_PASSWORD', 'admin123')
 
 # Group Chat Configuration - CHANGE THESE TO YOUR GROUP IDs
-GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', 'YOUR_GROUP_CHAT_ID'))
-LOG_GROUP_ID = int(os.getenv('LOG_GROUP_ID', 'YOUR_LOG_GROUP_ID'))
+GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', '-1002563927894'))  # HeisenbergStoreUk group
+LOG_GROUP_ID = int(os.getenv('LOG_GROUP_ID', '-1002563927894'))    # HeisenbergStoreUk group
 
 # Payment Configuration
 BITCOIN_RATES = {
@@ -98,7 +98,7 @@ Choose a category to explore our products:""",
 • Minimum deposit: £70
 
 **Support:**
-Contact @YOUR_SUPPORT_USERNAME for assistance""",
+Contact @HeisenbergActives for assistance""",
     
     'balance': """💰 **Your Wallet Balance**
 
@@ -175,7 +175,7 @@ ENABLE_LOGGING = True
 ENABLE_ADMIN_NOTIFICATIONS = True
 
 # Contact Information - CHANGE THESE TO YOUR DETAILS
-SUPPORT_USERNAME = '@YOUR_SUPPORT_USERNAME'
-SUPPORT_CHANNEL = '@YOUR_CHANNEL_USERNAME'
+SUPPORT_USERNAME = '@HeisenbergActives'
+SUPPORT_CHANNEL = 'https://t.me/HeisenbergStoreUk'
 TERMS_URL = 'https://your-website.com/terms'
 PRIVACY_URL = 'https://your-website.com/privacy'
