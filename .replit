@@ -5,7 +5,7 @@ channel = "stable-24_05"
 packages = ["glibcLocales"]
 
 [workflows]
-runButton = "Project"
+runButton = "Deploy Bot"
 
 [[workflows.workflow]]
 name = "Project"
@@ -19,6 +19,15 @@ args = "Bot"
 [[workflows.workflow]]
 name = "Bot"
 author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python main.py"
+
+[[workflows.workflow]]
+name = "Deploy Bot"
+author = 44344159
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

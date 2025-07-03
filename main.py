@@ -468,24 +468,30 @@ def callback_query(call):
             bot.send_message(call.message.chat.id, text="❌NOT ENOUGH CREDITS. PLEASE TOP UP❌", parse_mode="Markdown")
 
 def extract_arg1(arg):
-    return arg.split()[1:]
+    try:
+        return arg.split()[1:]
+    except:
+        return []
 
 def extract_arg2(arg):
-    args = arg.split()[1:]
-    result = []
-    i = 0
-    while i < len(args):
-        if args[i].startswith('"') or args[i].startswith("'"):
-            result.append(args[i][1:])
-            while i + 1 < len(args) and not args[i].endswith('"') and not args[i].endswith("'"):
-                i += 1
-                result[-1] += " " + args[i]
-            if args[i].endswith('"') or args[i].endswith("'"):
-                result[-1] = result[-1][:-1]
-        else:
-            result.append(args[i])
-        i += 1
-    return result
+    try:
+        args = arg.split()[1:]
+        result = []
+        i = 0
+        while i < len(args):
+            if args[i].startswith('"') or args[i].startswith("'"):
+                result.append(args[i][1:])
+                while i + 1 < len(args) and not args[i].endswith('"') and not args[i].endswith("'"):
+                    i += 1
+                    result[-1] += " " + args[i]
+                if args[i].endswith('"') or args[i].endswith("'"):
+                    result[-1] = result[-1][:-1]
+            else:
+                result.append(args[i])
+            i += 1
+        return result
+    except:
+        return []
 
 # Webhook route for Telegram
 @app.route(f'/{API_KEY_001}', methods=['POST'])
@@ -502,16 +508,37 @@ def health_check():
 
 # Set webhook
 def set_webhook():
-    webhook_url = f"https://{os.environ.get('REPL_SLUG')}.{os.environ.get('REPL_OWNER')}.repl.co/{API_KEY_001}"
-    bot.remove_webhook()
-    time.sleep(1)
-    bot.set_webhook(url=webhook_url)
-    print(f"Webhook set to: {webhook_url}")
+    # Only set webhook if REPL_SLUG and REPL_OWNER are available (deployment environment)
+    repl_slug = os.environ.get('REPL_SLUG')
+    repl_owner = os.environ.get('REPL_OWNER')
+    
+    if repl_slug and repl_owner:
+        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
+        try:
+            bot.remove_webhook()
+            time.sleep(1)
+            bot.set_webhook(url=webhook_url)
+            print(f"Webhook set to: {webhook_url}")
+        except Exception as e:
+            print(f"Webhook setup failed: {e}")
+            print("Falling back to polling mode...")
+            bot.remove_webhook()
+    else:
+        print("Development environment detected, using polling mode")
+        bot.remove_webhook()
 
 if __name__ == '__main__':
-    # Set webhook when running
-    set_webhook()
-    
-    # Run Flask app
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    try:
+        # Set webhook for deployment
+        set_webhook()
+        
+        # Run Flask app for webhook handling
+        port = int(os.environ.get('PORT', 5000))
+        print(f"Starting Flask app on 0.0.0.0:{port}")
+        app.run(host='0.0.0.0', port=port, debug=False)
+    except Exception as e:
+        print(f"Flask app failed to start: {e}")
+        print("Starting bot in polling mode as fallback...")
+        # Remove webhook and start polling
+        bot.remove_webhook()
+        bot.polling(none_stop=True, interval=0, timeout=20)
