@@ -2,7 +2,7 @@
 import telebot
 from telebot import types
 import openpyxl
-from constants import API_KEY_001, adminpass
+from constants import API_KEY_001, adminpass, ADMIN_ID, GROUP_CHAT_ID
 from telebot import types
 from bitcoin import *
 import pandas
@@ -21,6 +21,7 @@ from block_io import BlockIo
 import random
 import datetime
 from flask import Flask, request
+import threading
 
 # Initialize Flask app for webhook
 app = Flask(__name__)
@@ -2013,28 +2014,19 @@ def webhook():
 def health_check():
     return "Heisenberg Store Bot is running!"
 
-# Set webhook
-def set_webhook():
-    # Only set webhook if REPL_SLUG and REPL_OWNER are available (deployment environment)
-    repl_slug = os.environ.get('REPL_SLUG')
-    repl_owner = os.environ.get('REPL_OWNER')
-    
-    if repl_slug and repl_owner:
-        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
-        try:
-            bot.remove_webhook()
-            time.sleep(1)
-            bot.set_webhook(url=webhook_url)
-            print(f"Webhook set to: {webhook_url}")
-        except Exception as e:
-            print(f"Webhook setup failed: {e}")
-            print("Falling back to polling mode...")
-            bot.remove_webhook()
-    else:
-        print("Development environment detected, using polling mode")
-        bot.remove_webhook()
+# Bot status route for monitoring
+@app.route('/status')
+def bot_status():
+    return {"status": "running", "bot": "Heisenberg Store Bot"}
 
-if __name__ == '__main__':
+# Function to run Flask app
+def run_flask_app():
+    """Run Flask app on port 5000 for deployment"""
+    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+
+# Function to run bot
+def run_bot():
+    """Run the Telegram bot"""
     # Set up bot commands menu for easy access
     commands = [
         telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
@@ -2097,5 +2089,35 @@ if __name__ == '__main__':
                 except Exception as final_error:
                     print(f"❌ All methods failed: {final_error}")
                     time.sleep(60)  # Wait before restart
-            
-# Remove Flask app startup to prevent deployment mode conflicts
+
+# Set webhook
+def set_webhook():
+    # Only set webhook if REPL_SLUG and REPL_OWNER are available (deployment environment)
+    repl_slug = os.environ.get('REPL_SLUG')
+    repl_owner = os.environ.get('REPL_OWNER')
+    
+    if repl_slug and repl_owner:
+        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
+        try:
+            bot.remove_webhook()
+            time.sleep(1)
+            bot.set_webhook(url=webhook_url)
+            print(f"Webhook set to: {webhook_url}")
+        except Exception as e:
+            print(f"Webhook setup failed: {e}")
+            print("Falling back to polling mode...")
+            bot.remove_webhook()
+    else:
+        print("Development environment detected, using polling mode")
+        bot.remove_webhook()
+
+if __name__ == '__main__':
+    print("🚀 Starting Heisenberg Store Bot with Flask server...")
+    
+    # Start Flask app in a separate thread for deployment
+    flask_thread = threading.Thread(target=run_flask_app, daemon=True)
+    flask_thread.start()
+    print("✓ Flask server started on port 5000")
+    
+    # Start the bot
+    run_bot()
