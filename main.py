@@ -589,8 +589,9 @@ def open_uk_fresh_page(message, page=1):
         else:
             inline_keyboard2.add(pagination_buttons[0])
     
-    # Add navigation buttons
+    # Add navigation and search buttons
     inline_keyboard2.add(btn_prev)
+    inline_keyboard2.add(btn_search)
     inline_keyboard2.add(btn_menu)
     
     # Display message
@@ -651,8 +652,9 @@ def open_aus_fresh_page(message, page=1):
         else:
             inline_keyboard2.add(pagination_buttons[0])
     
-    # Add navigation buttons
+    # Add navigation and search buttons
     inline_keyboard2.add(btn_prev)
+    inline_keyboard2.add(btn_search)
     inline_keyboard2.add(btn_menu)
     
     # Display message
@@ -713,8 +715,9 @@ def open_10gbp_fresh_page(message, page=1):
         else:
             inline_keyboard2.add(pagination_buttons[0])
     
-    # Add navigation buttons
+    # Add navigation and search buttons
     inline_keyboard2.add(btn_prev)
+    inline_keyboard2.add(btn_search)
     inline_keyboard2.add(btn_menu)
     
     # Display message
@@ -1323,7 +1326,14 @@ def callback_query(call):
     if call.data == "store":
         open_binlist(call.message)
     elif call.data == "search":
-        open_search(call.message)
+        # Call fullz search function
+        sent_msg = bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="🔍 **Fullz Search**\n\nType keywords to search across all bases:\n• Names, postcodes, BIN numbers\n• Minimum 3 characters required\n• Searches UK Fresh, Australian Fresh, and £10 bases\n\n**Enter your search term:**",
+            parse_mode="Markdown"
+        )
+        bot.register_next_step_handler(sent_msg, handle_fullz_search)
     elif call.data == "cancel":
         cancel(call.message)
     elif call.data == "wallet":
