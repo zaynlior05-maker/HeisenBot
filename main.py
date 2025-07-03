@@ -590,7 +590,7 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    # Always use polling mode for Replit
+    # Force polling mode only - no Flask deployment
     print("🚀 Starting Heisenberg Store Bot in polling mode...")
     try:
         bot.remove_webhook()  # Remove any existing webhook
@@ -604,3 +604,5 @@ if __name__ == '__main__':
             bot.polling(none_stop=True, interval=1, timeout=10)
         except Exception as retry_error:
             print(f"❌ All polling methods failed: {retry_error}")
+            
+# Remove Flask app startup to prevent deployment mode conflicts
