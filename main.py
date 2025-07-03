@@ -566,8 +566,11 @@ def open_uk_fresh_page(message, page=1):
     page_items = all_uk_data[start_idx:end_idx]
     
     # Add product buttons for current page
-    for item in page_items:
-        btn = types.InlineKeyboardButton(f"🔸 {item} - £30", callback_data=f'ukfresh_{item}')
+    for idx, item in enumerate(page_items):
+        item_id = start_idx + idx + 1  # Create unique item ID
+        # Shorten button text to avoid callback data limits
+        short_text = item[:40] + "..." if len(item) > 40 else item
+        btn = types.InlineKeyboardButton(f"{short_text} - £30", callback_data=f'uk_{item_id}')
         inline_keyboard2.add(btn)
     
     # Add pagination buttons
@@ -600,9 +603,30 @@ def open_uk_fresh_page(message, page=1):
 
 def handle_ukfresh_purchase(call):
     """Handle purchase of UK fresh base items"""
-    # Extract product info from callback data (ukfresh_product_data)
-    product_data = call.data.replace("ukfresh_", "")
+    # Extract item ID from callback data
+    item_id = int(call.data.replace("uk_", ""))
     price = 30  # Fixed price for UK fresh base
+    
+    # Generate the same data to get the specific item
+    all_uk_data = []
+    for i in range(1, 101):  # Generate 100 sample entries
+        postcode_samples = ["SW1A 1AA", "M1 1AA", "B1 1AA", "LS1 1AA", "NE1 1AA", "GL1 1AA", "CV1 1AA", "S1 1AA", "L1 1AA", "BD1 1AA"]
+        postcode = postcode_samples[i % len(postcode_samples)]
+        bin_num = 424242 + i
+        all_uk_data.append(f"UK BIN: {bin_num} | PostCode: {postcode}")
+    
+    # Try to load from file if it exists
+    try:
+        with open("base2/fullz2.txt") as file:
+            all_uk_data = [line.strip() for line in file if line.strip()]
+    except FileNotFoundError:
+        pass  # Use sample data
+    
+    # Get the specific product data
+    if 1 <= item_id <= len(all_uk_data):
+        product_data = all_uk_data[item_id - 1]
+    else:
+        product_data = f"UK Fresh Item #{item_id}"
     
     user_id = call.message.chat.id
     username = call.message.chat.username or "No username"
@@ -777,7 +801,7 @@ def callback_query(call):
         # Handle UK fresh base pagination
         page = int(call.data.split("_")[-1])
         open_uk_fresh_page(call.message, page)
-    elif call.data.startswith("ukfresh_"):
+    elif call.data.startswith("uk_"):
         # Handle UK fresh base purchases
         handle_ukfresh_purchase(call)
     elif call.data == "fullz":
