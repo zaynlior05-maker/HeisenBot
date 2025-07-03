@@ -445,6 +445,13 @@ Choose a category to explore our products:""".format(balance=self.get_user_balan
                 elif call.data == 'fullz':
                     self.handle_fullz_menu(call)
                 
+                elif call.data.startswith('base_'):
+                    base_number = int(call.data.split('_')[1])
+                    self.handle_base_selection(call, base_number)
+                
+                elif call.data.startswith('purchase_fullz_'):
+                    self.handle_fullz_purchase(call)
+                
                 elif call.data == 'call_center':
                     self.handle_call_center_menu(call)
                 
@@ -581,34 +588,47 @@ Choose an amount to deposit via Bitcoin:"""
         
         self.log_user_activity(user_id, username, "Fullz Menu", "Accessed fullz category")
         
-        keyboard = types.InlineKeyboardMarkup()
+        keyboard = types.InlineKeyboardMarkup(row_width=2)
         
-        # Add fullz bases
+        # Add all 10 bases with exact prices from reference
         bases = [
-            ("🇺🇸 USA BASE", "fullz_usa"),
-            ("🇬🇧 UK BASE", "fullz_uk"),
-            ("🇨🇦 CANADA BASE", "fullz_ca"),
-            ("🇦🇺 AUSTRALIA BASE", "fullz_au"),
-            ("🇩🇪 GERMANY BASE", "fullz_de"),
-            ("🇫🇷 FRANCE BASE", "fullz_fr")
+            ("Base 1 - £5", "base_1"),
+            ("Base 2 - £10", "base_2"),
+            ("Base 3 - £15", "base_3"),
+            ("Base 4 - £20", "base_4"),
+            ("Base 5 - £25", "base_5"),
+            ("Base 6 - £30", "base_6"),
+            ("Base 7 - £50", "base_7"),
+            ("Base 8 - £70", "base_8"),
+            ("Base 9 - £85", "base_9"),
+            ("Base 10 - £100", "base_10")
         ]
         
-        for name, callback in bases:
-            keyboard.add(types.InlineKeyboardButton(name, callback_data=callback))
+        for i in range(0, len(bases), 2):
+            if i + 1 < len(bases):
+                keyboard.add(
+                    types.InlineKeyboardButton(bases[i][0], callback_data=bases[i][1]),
+                    types.InlineKeyboardButton(bases[i+1][0], callback_data=bases[i+1][1])
+                )
+            else:
+                keyboard.add(types.InlineKeyboardButton(bases[i][0], callback_data=bases[i][1]))
         
-        keyboard.add(types.InlineKeyboardButton('❌ Back', callback_data='start'))
+        keyboard.add(types.InlineKeyboardButton('🔙 Main Menu', callback_data='start'))
         
-        fullz_text = """🗓 **FULLZ BASES**
+        fullz_text = """🗓 **FULLZ BASES - UK DATA**
 
-**Available Databases:**
-• Complete personal information packages
-• High-quality verified data
-• Instant delivery
-• Multiple country options
+**✅ Complete Fullz Records Available**
+📍 **All Bases:** UK residents only
+💳 **Information:** Name, DOB, Postcode, BIN
+🔥 **Fresh Data:** Updated regularly
+⚡ **Instant Delivery:** Immediate access
 
-**Price Range:** £15-30 per record
+**📊 Base Statistics:**
+• Base 1-3: Standard quality
+• Base 4-6: Premium quality  
+• Base 7-10: VIP quality
 
-Choose a country database:"""
+**💰 Select a base to view records:**"""
         
         try:
             self.bot.edit_message_text(
@@ -620,6 +640,162 @@ Choose a country database:"""
             )
         except Exception as e:
             logger.error(f"Fullz menu error: {e}")
+    
+    def handle_base_selection(self, call, base_number):
+        """Handle base selection and show records"""
+        user_id = call.from_user.id
+        username = call.from_user.username or f"User{user_id}"
+        
+        self.log_user_activity(user_id, username, f"Base {base_number}", f"Viewed Base {base_number} records")
+        
+        # Base prices exactly from reference
+        base_prices = {1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 50, 8: 70, 9: 85, 10: 100}
+        price = base_prices.get(base_number, 10)
+        
+        # Generate sample records for the base
+        records = get_base_records(f"base_{base_number}", 1, 20)
+        
+        keyboard = types.InlineKeyboardMarkup()
+        
+        # Add purchase buttons for each record
+        for i, record in enumerate(records[:10]):  # Show first 10 records
+            button_text = f"{record['name']} | {record['dob']} | {record['postcode']} - £{price}"
+            keyboard.add(types.InlineKeyboardButton(
+                button_text, 
+                callback_data=f'purchase_fullz_{base_number}_1_{i}'
+            ))
+        
+        # Navigation buttons
+        if len(records) > 10:
+            keyboard.add(types.InlineKeyboardButton('➡️ Next Page', callback_data=f'page_{base_number}_2'))
+        
+        keyboard.add(types.InlineKeyboardButton('🔙 Back to Fullz', callback_data='fullz'))
+        
+        text = f"""🗓 **BASE {base_number} - UK FULLZ**
+
+💰 **Price per record:** £{price}
+📊 **Available records:** {len(records)}
+💳 **Your balance:** £{self.get_user_balance(user_id):.2f}
+
+**🎯 Click any record to purchase:**
+_Format: Name | DOB | Postcode - Price_
+
+**ℹ️ Each purchase includes:**
+• Full name and date of birth
+• Complete postcode
+• Valid BIN number
+• Bank information"""
+        
+        try:
+            self.bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text=text,
+                reply_markup=keyboard,
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"Base selection error: {e}")
+    
+    def handle_fullz_purchase(self, call):
+        """Handle fullz purchase with exact pricing"""
+        user_id = call.from_user.id
+        username = call.from_user.username or f"User{user_id}"
+        
+        try:
+            # Parse callback data: purchase_fullz_base_page_index
+            parts = call.data.split('_')
+            base_number = int(parts[2])
+            page = int(parts[3])
+            record_index = int(parts[4])
+            
+            # Get the specific record
+            records = get_base_records(f"base_{base_number}", page, 20)
+            if record_index >= len(records):
+                self.bot.answer_callback_query(call.id, "Record not found")
+                return
+            
+            record = records[record_index]
+            
+            # Base prices exactly from reference
+            base_prices = {1: 5, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 50, 8: 70, 9: 85, 10: 100}
+            price = base_prices.get(base_number, 10)
+            
+            # Check user balance
+            balance = self.get_user_balance(user_id)
+            
+            if balance >= price:
+                # Process purchase
+                if self.deduct_user_balance(user_id, price):
+                    # Generate complete fullz details
+                    complete_record = f"""🎯 **PURCHASE SUCCESSFUL**
+
+💳 **Complete Fullz Record:**
+👤 **Name:** {record['name']}
+🎂 **DOB:** {record['dob']}
+📮 **Postcode:** {record['postcode']}
+💳 **BIN:** {record['bin']}
+🏦 **Bank:** Sample Bank Ltd
+🌍 **Country:** United Kingdom
+💎 **Type:** Debit Card
+
+✅ **Payment Processed: £{price}**
+💰 **Remaining Balance: £{self.get_user_balance(user_id):.2f}**
+
+Thank you for your purchase!"""
+                    
+                    # Send to customer
+                    self.bot.send_message(
+                        chat_id=call.message.chat.id,
+                        text=complete_record,
+                        parse_mode='Markdown'
+                    )
+                    
+                    # Log purchase
+                    self.log_purchase_attempt(user_id, username, f"Base {base_number} Fullz", f"£{price}", "Fullz")
+                    
+                    # Notify admin
+                    admin_message = f"""💰 **FULLZ SALE COMPLETED**
+👤 Customer: @{username} (ID: {user_id})
+📦 Product: Base {base_number} Fullz
+💵 Price: £{price}
+💳 Record: {record['name']} | {record['dob']} | {record['postcode']}
+⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+                    
+                    self.notify_admin(admin_message)
+                    
+                    self.bot.answer_callback_query(call.id, f"✅ Purchase successful! £{price} deducted")
+                else:
+                    self.bot.answer_callback_query(call.id, "❌ Insufficient balance")
+            else:
+                # Insufficient balance
+                keyboard = types.InlineKeyboardMarkup()
+                keyboard.add(types.InlineKeyboardButton('💳 Top Up Wallet', callback_data='wallet'))
+                keyboard.add(types.InlineKeyboardButton('🔙 Back to Base', callback_data=f'base_{base_number}'))
+                
+                insufficient_text = f"""❌ **Insufficient Balance**
+
+💰 **Required:** £{price}
+💳 **Your Balance:** £{balance:.2f}
+💎 **Need:** £{price - balance:.2f} more
+
+Please top up your wallet to complete this purchase."""
+                
+                try:
+                    self.bot.send_message(
+                        chat_id=call.message.chat.id,
+                        text=insufficient_text,
+                        reply_markup=keyboard,
+                        parse_mode='Markdown'
+                    )
+                except Exception as e:
+                    logger.error(f"Insufficient balance message error: {e}")
+                    
+                self.bot.answer_callback_query(call.id, f"❌ Need £{price - balance:.2f} more")
+                
+        except Exception as e:
+            logger.error(f"Fullz purchase error: {e}")
+            self.bot.answer_callback_query(call.id, "❌ Purchase failed")
     
     def handle_call_center_menu(self, call):
         """Handle call center menu with country databases"""
