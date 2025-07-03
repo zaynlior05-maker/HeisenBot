@@ -1,0 +1,2 @@
+423456|08|2026|678|David Miller|321 Wall St|Toronto|ON|M5V 1A1|CA|dmiller@email.com|416-555-0123|02/14/1987
+554433|05|2025|901|Emma Brown|654 Bay St|Vancouver|BC|V6B 1A1|CA|ebrown@email.com|604-555-0456|11/30/1983

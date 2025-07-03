@@ -1,7 +1,8 @@
-modules = ["python-3.11"]
+modules = ["python-3.11", "python3"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["glibcLocales"]
 
 [workflows]
 runButton = "Project"
@@ -13,23 +14,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Web Dashboard"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Bot Test"
+args = "Mazza X Gaara Bot"
 
 [[workflows.workflow]]
-name = "Web Dashboard"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python web_interface.py"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Bot Test"
+name = "Mazza X Gaara Bot"
 author = "agent"
 
 [[workflows.workflow.tasks]]

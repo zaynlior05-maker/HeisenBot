@@ -1,0 +1,2 @@
+467890|07|2026|456|Ryan Reynolds|321 Comedy St|Vancouver|BC|V5K 1A1|CA|rreynolds@email.com|604-555-0123|04/22/1982
+512345|03|2025|789|Blake Lively|654 Style Ave|New York|NY|10025|US|blively@email.com|212-555-0456|09/15/1988

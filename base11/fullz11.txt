@@ -1,0 +1,2 @@
+676767|08|2027|987|Bruce Wayne|1007 Mountain Dr|Gotham|NJ|07001|US|bwayne@email.com|609-555-0321|02/19/1972
+787878|01|2026|654|Clark Kent|344 Clinton St|Metropolis|KS|67001|US|ckent@email.com|785-555-0456|02/29/1978

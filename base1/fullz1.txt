@@ -1,0 +1,4 @@
+424242|04|2026|123|John Smith|123 Main St|New York|NY|10001|US|johnssmith@email.com|555-0123|01/01/1990
+476173|07|2025|456|Jane Doe|456 Oak Ave|Los Angeles|CA|90210|US|janedoe@email.com|555-0456|03/15/1985
+533312|12|2027|789|Bob Johnson|789 Pine St|Chicago|IL|60601|US|bobjohnson@email.com|555-0789|07/22/1992
+411111|09|2025|321|Mary Wilson|321 Elm St|Miami|FL|33101|US|marywilson@email.com|555-0321|12/08/1988

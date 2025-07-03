@@ -1,0 +1,3 @@
+511234|06|2026|567|Sarah Connor|789 Tech Ave|Sydney|NSW|2000|AU|sconnor@email.com|02-9876-5432|04/20/1980
+422318|11|2025|890|Mike Ross|456 Legal St|Melbourne|VIC|3000|AU|mross@email.com|03-1234-5678|09/10/1985
+400000|03|2027|234|Lisa White|123 King St|Brisbane|QLD|4000|AU|lwhite@email.com|07-2345-6789|06/05/1990

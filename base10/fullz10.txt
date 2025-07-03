@@ -1,0 +1,2 @@
+434343|12|2026|321|Steven Rogers|789 Shield St|Brooklyn|NY|11201|US|srogers@email.com|718-555-0987|07/04/1918
+545454|06|2025|654|Tony Stark|123 Iron Ave|Malibu|CA|90265|US|tstark@email.com|310-555-0123|05/29/1970

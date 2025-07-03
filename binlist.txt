@@ -1,0 +1,21 @@
+424242|04|2026|123|John Smith|123 Main St|New York|NY|10001|US|johnssmith@email.com|555-0123|01/01/1990
+476173|07|2025|456|Jane Doe|456 Oak Ave|Los Angeles|CA|90210|US|janedoe@email.com|555-0456|03/15/1985
+533312|12|2027|789|Bob Johnson|789 Pine St|Chicago|IL|60601|US|bobjohnson@email.com|555-0789|07/22/1992
+411111|09|2025|321|Mary Wilson|321 Elm St|Miami|FL|33101|US|marywilson@email.com|555-0321|12/08/1988
+511234|06|2026|567|Sarah Connor|789 Tech Ave|Sydney|NSW|2000|AU|sconnor@email.com|02-9876-5432|04/20/1980
+422318|11|2025|890|Mike Ross|456 Legal St|Melbourne|VIC|3000|AU|mross@email.com|03-1234-5678|09/10/1985
+400000|03|2027|234|Lisa White|123 King St|Brisbane|QLD|4000|AU|lwhite@email.com|07-2345-6789|06/05/1990
+423456|08|2026|678|David Miller|321 Wall St|Toronto|ON|M5V 1A1|CA|dmiller@email.com|416-555-0123|02/14/1987
+554433|05|2025|901|Emma Brown|654 Bay St|Vancouver|BC|V6B 1A1|CA|ebrown@email.com|604-555-0456|11/30/1983
+487654|01|2027|345|Alex Thompson|987 High St|London|ENG|SW1A 1AA|UK|athompson@email.com|020-7946-0958|05/12/1989
+543210|10|2025|678|Sophie Clark|456 Victoria St|Manchester|ENG|M1 1AD|UK|sclark@email.com|0161-496-0123|08/25/1991
+445566|02|2026|234|Chris Evans|123 Marvel Ave|Boston|MA|02101|US|cevans@email.com|617-555-0987|03/18/1986
+556677|09|2025|567|Rachel Green|654 Friends St|New York|NY|10016|US|rgreen@email.com|212-555-0654|12/01/1992
+378282|04|2027|890|Tom Hardy|789 Action St|London|ENG|E1 6AN|UK|thardy@email.com|020-7946-0321|06/07/1984
+498765|11|2025|123|Anna Johnson|456 Drama Ave|Birmingham|ENG|B1 1BB|UK|ajohnson@email.com|0121-496-0789|10/13/1990
+467890|07|2026|456|Ryan Reynolds|321 Comedy St|Vancouver|BC|V5K 1A1|CA|rreynolds@email.com|604-555-0123|04/22/1982
+512345|03|2025|789|Blake Lively|654 Style Ave|New York|NY|10025|US|blively@email.com|212-555-0456|09/15/1988
+434343|12|2026|321|Steven Rogers|789 Shield St|Brooklyn|NY|11201|US|srogers@email.com|718-555-0987|07/04/1918
+545454|06|2025|654|Tony Stark|123 Iron Ave|Malibu|CA|90265|US|tstark@email.com|310-555-0123|05/29/1970
+676767|08|2027|987|Bruce Wayne|1007 Mountain Dr|Gotham|NJ|07001|US|bwayne@email.com|609-555-0321|02/19/1972
+787878|01|2026|654|Clark Kent|344 Clinton St|Metropolis|KS|67001|US|ckent@email.com|785-555-0456|02/29/1978

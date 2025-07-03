@@ -436,7 +436,7 @@ def callback_query(call):
     open_topup(call.message, call.data[3:])
   elif str(call.data)[0:4] == "base":
     open_base(call.message, call.data[4:])
-  elif call.data == "fullz":
+  elif str(call.data == "fullz"):
     requests.post(
       'https://api.telegram.org/bot6115696380:AAEWEbgFo6O5UQYxBRZsa-8FXKpUqA5G6VA/sendMessage?chat_id=-1001853944779&text=@'
       + str(call.message.chat.username)  + " (" + str(call.message.chat.id) + ') tried to buy fullz, but no credits')

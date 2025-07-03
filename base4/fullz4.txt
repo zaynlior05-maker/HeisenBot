@@ -1,0 +1,2 @@
+487654|01|2027|345|Alex Thompson|987 High St|London|ENG|SW1A 1AA|UK|athompson@email.com|020-7946-0958|05/12/1989
+543210|10|2025|678|Sophie Clark|456 Victoria St|Manchester|ENG|M1 1AD|UK|sclark@email.com|0161-496-0123|08/25/1991
