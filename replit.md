@@ -99,10 +99,17 @@ The application is designed for deployment on Replit with the following characte
 
 ## Recent Changes
 
+### Tools Menu Implementation (July 03, 2025)
+- Added comprehensive Tools menu with 9 professional services
+- Services include: Call Centre with DID, Crypto Leads, Mail Checkers, Mailer, Autodoxers, Live Panels, Bulk SMS, Email Spamming, P1
+- Contact-based pricing system - all inquiries redirect to admin for custom quotes
+- Automated admin notifications for tool inquiries with user details and timestamps
+- Professional inquiry tracking and logging system
+
 ### Unspoofed Base Implementation (July 03, 2025)
-- Added Heisen Unspoofed Base (base6) with bulk email pricing structure
+- Added Heisen Unspoofed Base (base6) with bulk card pricing structure
 - Four package options: Specific 50+ (£225), Specific 100+ (£350), Random 50+ (£100), Random 100+ (£150)
-- Bulk pricing calculation: £4/£3.50 per specific email, £2/£1.50 per random email
+- Bulk pricing calculation: £4/£3.50 per specific card, £2/£1.50 per random card
 - Complete automated purchase workflow with package details and admin notifications
 - Freshness specification: 3 days to 2 weeks spam resistance
 

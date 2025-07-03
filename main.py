@@ -118,7 +118,10 @@ btn_base5 = types.InlineKeyboardButton('🔸Heisen_10_Base', callback_data='base
 btn_base6 = types.InlineKeyboardButton('🔸Heisen_Unspoofed_Base', callback_data='base6')
 btn_base11 = types.InlineKeyboardButton('🔸Skippers&Meth', callback_data='base11')
 
+btn_tools = types.InlineKeyboardButton('🧰 Tools', callback_data='tools')
+
 inline_keyboard1.add(btn_store)
+inline_keyboard1.add(btn_tools)
 inline_keyboard1.add(btn_wallet, btn_support)
 inline_keyboard1.add(btn_rules, btn_updates)
 
@@ -754,6 +757,87 @@ def open_unspoofed_menu(message):
         parse_mode="Markdown"
     )
 
+def open_tools_menu(message):
+    """Display Tools menu with all available services"""
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    
+    # Create menu buttons for all tools
+    btn1 = types.InlineKeyboardButton("📌 Call Centre With DID Number", callback_data='tool_callcentre')
+    btn2 = types.InlineKeyboardButton("📌 Crypto Leads", callback_data='tool_cryptoleads')
+    btn3 = types.InlineKeyboardButton("📌 Valid Mail Checkers", callback_data='tool_mailcheckers')
+    btn4 = types.InlineKeyboardButton("📌 Mailer", callback_data='tool_mailer')
+    btn5 = types.InlineKeyboardButton("📌 Autodoxers", callback_data='tool_autodoxers')
+    btn6 = types.InlineKeyboardButton("📌 Live Panels", callback_data='tool_livepanels')
+    btn7 = types.InlineKeyboardButton("📌 Bulk SMS Routes", callback_data='tool_bulksms')
+    btn8 = types.InlineKeyboardButton("📌 Email Spamming", callback_data='tool_emailspam')
+    btn9 = types.InlineKeyboardButton("📌 P1", callback_data='tool_p1')
+    
+    inline_keyboard2.add(btn1)
+    inline_keyboard2.add(btn2)
+    inline_keyboard2.add(btn3)
+    inline_keyboard2.add(btn4)
+    inline_keyboard2.add(btn5)
+    inline_keyboard2.add(btn6)
+    inline_keyboard2.add(btn7)
+    inline_keyboard2.add(btn8)
+    inline_keyboard2.add(btn9)
+    
+    # Add navigation buttons
+    inline_keyboard2.add(btn_menu)
+    
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=message.message_id,
+        text="🧰 **Tools Menu**\n\n🟢 **Active On All Tools:**\n\n📌 Call Centre With DID Number\n📌 Crypto Leads\n📌 Valid Mail Checkers\n📌 Mailer\n📌 Autodoxers\n📌 Live Panels\n📌 Bulk SMS Routes\n📌 Email Spamming\n📌 P1\n\n**Message @admin for price** 🧰\n\n*Select a tool to contact admin for pricing:*",
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+
+def handle_tools_contact(call):
+    """Handle tool selection and redirect to admin contact"""
+    user_id = call.message.chat.id
+    username = call.message.chat.username or "No username"
+    
+    # Define tool names
+    tools = {
+        'tool_callcentre': 'Call Centre With DID Number',
+        'tool_cryptoleads': 'Crypto Leads',
+        'tool_mailcheckers': 'Valid Mail Checkers',
+        'tool_mailer': 'Mailer',
+        'tool_autodoxers': 'Autodoxers',
+        'tool_livepanels': 'Live Panels',
+        'tool_bulksms': 'Bulk SMS Routes',
+        'tool_emailspam': 'Email Spamming',
+        'tool_p1': 'P1'
+    }
+    
+    tool_name = tools.get(call.data, "Unknown Tool")
+    
+    # Display contact information
+    inline_keyboard2 = types.InlineKeyboardMarkup()
+    inline_keyboard2.add(btn_menu)
+    
+    bot.edit_message_text(
+        chat_id=user_id,
+        message_id=call.message.message_id,
+        text=f"🧰 **Tool Inquiry: {tool_name}**\n\n💬 **Contact Admin for Pricing:**\n\n📱 **Admin:** @HeisenbergActives\n🕐 **Available:** 24/7\n⚡ **Response:** Usually within 1 hour\n\n📝 **Please mention:**\n• Tool: {tool_name}\n• Your requirements\n• Expected usage volume\n\n✅ Admin will provide custom pricing and setup details.",
+        reply_markup=inline_keyboard2,
+        parse_mode="Markdown"
+    )
+    
+    # Log the tool inquiry
+    notify_admin_activity(user_id, username, "🧰 Tool Inquiry", f"{tool_name} - User requested pricing information")
+    
+    # Notify admin about the inquiry
+    import datetime
+    admin_message = f"🧰 **NEW TOOL INQUIRY**\n\n👤 **User:** @{username} (ID: {user_id})\n🔧 **Tool:** {tool_name}\n⏰ **Time:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n💬 **User is interested in pricing for this tool**"
+    
+    try:
+        bot.send_message(ADMIN_ID, admin_message, parse_mode="Markdown")
+        bot.send_message(GROUP_CHAT_ID, admin_message, parse_mode="Markdown")
+    except Exception as e:
+        print(f"Failed to notify admin: {e}")
+
 def handle_unspoofed_purchase(call):
     """Handle unspoofed base purchases with bulk pricing"""
     user_id = call.message.chat.id
@@ -1209,6 +1293,12 @@ def callback_query(call):
     elif call.data.startswith("unspoofed_"):
         # Handle unspoofed base purchases
         handle_unspoofed_purchase(call)
+    elif call.data == "tools":
+        # Handle tools menu
+        open_tools_menu(call.message)
+    elif call.data.startswith("tool_"):
+        # Handle tool contact requests
+        handle_tools_contact(call)
     elif call.data == "fullz":
         amount = int(db["bal" + str(call.message.chat.id)])
         if amount == 285:
