@@ -2066,9 +2066,9 @@ def run_flask_app():
     """Run Flask app on port 5000 for deployment"""
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
 
-# Function to run bot with continuous restart capability
+# Function to run bot with single instance guarantee
 def run_bot():
-    """Run the Telegram bot with automatic restart on failures"""
+    """Run the Telegram bot ensuring single instance only"""
     # Set up bot commands menu for easy access
     commands = [
         telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
@@ -2083,62 +2083,41 @@ def run_bot():
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    print("🚀 Starting Heisenberg Store Bot with auto-restart capability...")
+    print("🚀 Starting Heisenberg Store Bot...")
     
-    # Infinite loop to keep bot alive
-    while True:
-        try:
-            # Clean up any existing connections
-            try:
-                bot.delete_webhook(drop_pending_updates=True)
-                print("✓ Webhook deleted with pending updates cleared")
-            except Exception as e:
-                print(f"⚠️ Webhook deletion: {e}")
-            
-            try:
-                bot.remove_webhook()
-                print("✓ Webhook removed successfully")
-            except Exception as e:
-                print(f"⚠️ Webhook removal: {e}")
-            
-            # Wait for Telegram API to clear completely
-            time.sleep(3)
-            
-            print("✓ Bot is now active - users can send /start")
-            
-            # Start polling with enhanced error handling
-            bot.infinity_polling(
-                timeout=30,
-                long_polling_timeout=15,
-                skip_pending=True,
-                none_stop=False,
-                allowed_updates=None
-            )
-            
-        except Exception as e:
-            print(f"❌ Bot polling failed: {e}")
-            print("🔄 Auto-restarting bot in 5 seconds...")
-            time.sleep(5)
-            
-            # Force cleanup before restart
-            try:
-                bot.stop_polling()
-            except:
-                pass
-            
-            # Additional cleanup for conflicts
-            try:
-                # Get and clear any pending updates
-                updates = bot.get_updates(timeout=1)
-                if updates:
-                    last_update_id = updates[-1].update_id
-                    bot.get_updates(offset=last_update_id + 1, timeout=1)
-                    print("✓ Cleared pending updates before restart")
-            except:
-                pass
-            
-            print("🔄 Attempting bot restart...")
-            continue
+    # Aggressive cleanup to ensure single instance
+    try:
+        # Delete webhook completely
+        bot.delete_webhook(drop_pending_updates=True)
+        time.sleep(2)
+        bot.remove_webhook()
+        time.sleep(2)
+        
+        # Clear all pending updates
+        updates = bot.get_updates(timeout=1, offset=-1)
+        if updates:
+            last_update_id = updates[-1].update_id
+            bot.get_updates(offset=last_update_id + 1, timeout=1)
+        
+        print("✓ Complete cleanup performed")
+        time.sleep(5)  # Wait for Telegram API to fully clear
+        
+    except Exception as e:
+        print(f"⚠️ Cleanup warning: {e}")
+    
+    # Start bot with simple polling to avoid conflicts
+    try:
+        print("✓ Bot is now active - users can send /start")
+        bot.polling(
+            none_stop=True,
+            interval=1,
+            timeout=20
+        )
+    except Exception as e:
+        print(f"❌ Bot failed: {e}")
+        print("🔄 Restarting in 10 seconds...")
+        time.sleep(10)
+        run_bot()  # Restart with same function
 
 # Set webhook
 def set_webhook():
@@ -2169,29 +2148,12 @@ if __name__ == '__main__':
     flask_thread.start()
     print("✓ Flask server started on port 5000")
     
-    # Start internal keep-alive service
+    # Start minimal keep-alive service only
     keepalive_thread = threading.Thread(target=keep_alive, daemon=True)
     keepalive_thread.start()
-    print("✓ Internal keep-alive service started")
+    print("✓ Keep-alive service started")
     
-    # Start external monitoring services
-    try:
-        from keep_alive import keep_alive_service
-        keep_alive_service.start()
-        print("✓ Primary monitoring service started")
-    except Exception as e:
-        print(f"⚠️ Primary monitoring service failed: {e}")
-    
-    try:
-        from uptimerobot import start_external_monitoring
-        start_external_monitoring()
-        print("✓ UptimeRobot-style monitoring started")
-    except Exception as e:
-        print(f"⚠️ UptimeRobot monitoring failed: {e}")
-    
-    print("✓ 24/7 Keep-alive system active - bot will NEVER sleep")
-    print("✓ Multiple monitoring services ensure 99.9% uptime")
-    print("✓ Bot will stay online even when you're offline")
+    print("✓ Bot will stay online 24/7 with Flask server running")
     
     # Start the bot with infinite restart capability
     run_bot()
