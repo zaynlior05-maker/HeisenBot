@@ -2066,58 +2066,79 @@ def run_flask_app():
     """Run Flask app on port 5000 for deployment"""
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
 
-# Function to run bot with single instance guarantee
-def run_bot():
-    """Run the Telegram bot ensuring single instance only"""
-    # Set up bot commands menu for easy access
-    commands = [
-        telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
-        telebot.types.BotCommand("wallet", "💰 Check wallet balance"),
-        telebot.types.BotCommand("balance", "💳 View current balance"),
-        telebot.types.BotCommand("help", "ℹ️ Get help and info")
-    ]
-    
+# Function to setup webhook mode for deployment
+def setup_webhook_mode():
+    """Setup webhook mode for reliable deployment"""
     try:
+        # Set up bot commands menu
+        commands = [
+            telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
+            telebot.types.BotCommand("wallet", "💰 Check wallet balance"),
+            telebot.types.BotCommand("balance", "💳 View current balance"),
+            telebot.types.BotCommand("help", "ℹ️ Get help and info")
+        ]
         bot.set_my_commands(commands)
         print("✓ Bot commands menu set successfully")
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    print("🚀 Starting Heisenberg Store Bot...")
+    # Check if we're in deployment environment
+    repl_slug = os.environ.get('REPL_SLUG')
+    repl_owner = os.environ.get('REPL_OWNER')
     
-    # Aggressive cleanup to ensure single instance
+    if repl_slug and repl_owner:
+        # Deployment mode - use webhook
+        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
+        try:
+            bot.remove_webhook()
+            time.sleep(1)
+            result = bot.set_webhook(url=webhook_url)
+            if result:
+                print(f"✓ Webhook set successfully: {webhook_url}")
+                print("✓ Bot is now active in webhook mode - fully deployment ready")
+                return True
+            else:
+                print("⚠ Webhook setup failed, falling back to polling")
+                return False
+        except Exception as e:
+            print(f"⚠ Webhook error: {e}, using polling mode")
+            return False
+    else:
+        print("✓ Development mode detected")
+        return False
+
+# Function to run bot in polling mode (fallback)
+def run_polling_mode():
+    """Run bot in polling mode as fallback"""
+    print("🚀 Starting bot in polling mode...")
+    
     try:
-        # Delete webhook completely
-        bot.delete_webhook(drop_pending_updates=True)
-        time.sleep(2)
+        # Clear any existing webhooks
         bot.remove_webhook()
         time.sleep(2)
         
-        # Clear all pending updates
-        updates = bot.get_updates(timeout=1, offset=-1)
-        if updates:
-            last_update_id = updates[-1].update_id
-            bot.get_updates(offset=last_update_id + 1, timeout=1)
-        
-        print("✓ Complete cleanup performed")
-        time.sleep(5)  # Wait for Telegram API to fully clear
-        
-    except Exception as e:
-        print(f"⚠️ Cleanup warning: {e}")
-    
-    # Start bot with simple polling to avoid conflicts
-    try:
         print("✓ Bot is now active - users can send /start")
-        bot.polling(
-            none_stop=True,
-            interval=1,
-            timeout=20
-        )
+        bot.polling(none_stop=True, interval=1, timeout=20)
+        
     except Exception as e:
-        print(f"❌ Bot failed: {e}")
-        print("🔄 Restarting in 10 seconds...")
-        time.sleep(10)
-        run_bot()  # Restart with same function
+        print(f"❌ Polling failed: {e}")
+        time.sleep(5)
+        run_polling_mode()  # Restart
+
+# Main bot runner
+def run_bot():
+    """Run the bot with best available method"""
+    print("🚀 Starting Heisenberg Store Bot...")
+    
+    # Try webhook mode first (best for deployment)
+    if setup_webhook_mode():
+        print("✓ Running in webhook mode - no conflicts possible")
+        # In webhook mode, the Flask app handles everything
+        while True:
+            time.sleep(60)  # Keep the main thread alive
+    else:
+        # Fallback to polling mode
+        run_polling_mode()
 
 # Set webhook
 def set_webhook():

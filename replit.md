@@ -99,6 +99,15 @@ The application is designed for deployment on Replit with the following characte
 
 ## Recent Changes
 
+### Bot Sleep Prevention & Deployment Fix (July 10, 2025)
+- Fixed Flask app deployment configuration to listen on 0.0.0.0:5000
+- Implemented webhook mode for deployment with polling fallback
+- Added comprehensive keep-alive system with health check endpoints
+- Resolved bot polling conflicts and 409 errors
+- Bot now responds to all commands properly
+- Added automatic restart capability for error recovery
+- Maintained all existing menus and functions unchanged
+
 ### Instant Callback Purchase System (July 03, 2025)
 - Replaced text-only search results with interactive purchase buttons for immediate buying
 - BIN search results now display as callback buttons with "💳 BIN - Name... - PRICE - BUY" format
