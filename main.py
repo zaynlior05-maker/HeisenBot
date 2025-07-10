@@ -2024,9 +2024,9 @@ def run_flask_app():
     """Run Flask app on port 5000 for deployment"""
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 
-# Function to run bot
+# Function to run bot with continuous restart capability
 def run_bot():
-    """Run the Telegram bot"""
+    """Run the Telegram bot with automatic restart on failures"""
     # Set up bot commands menu for easy access
     commands = [
         telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
@@ -2041,54 +2041,62 @@ def run_bot():
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    # Force polling mode only - resolve conflicts
-    print("🚀 Starting Heisenberg Store Bot in polling mode...")
+    print("🚀 Starting Heisenberg Store Bot with auto-restart capability...")
     
-    # Clean up any existing connections - force delete webhook
-    try:
-        bot.delete_webhook()
-        print("✓ Webhook deleted successfully")
-    except Exception as e:
-        print(f"⚠️ Webhook deletion: {e}")
-    
-    # Additional cleanup attempt
-    try:
-        bot.remove_webhook()
-        print("✓ Webhook removed successfully")
-    except Exception as e:
-        print(f"⚠️ Webhook removal: {e}")
-    
-    # Wait longer for Telegram API to clear
-    time.sleep(5)
-    
-    # Start with robust error handling
-    retry_attempts = 0
-    max_retries = 3
-    
-    while retry_attempts < max_retries:
+    # Infinite loop to keep bot alive
+    while True:
         try:
+            # Clean up any existing connections
+            try:
+                bot.delete_webhook(drop_pending_updates=True)
+                print("✓ Webhook deleted with pending updates cleared")
+            except Exception as e:
+                print(f"⚠️ Webhook deletion: {e}")
+            
+            try:
+                bot.remove_webhook()
+                print("✓ Webhook removed successfully")
+            except Exception as e:
+                print(f"⚠️ Webhook removal: {e}")
+            
+            # Wait for Telegram API to clear completely
+            time.sleep(3)
+            
             print("✓ Bot is now active - users can send /start")
+            
+            # Start polling with enhanced error handling
             bot.infinity_polling(
-                timeout=20,
-                long_polling_timeout=10,
+                timeout=30,
+                long_polling_timeout=15,
                 skip_pending=True,
-                none_stop=True
+                none_stop=False,
+                allowed_updates=None
             )
-            break
+            
         except Exception as e:
-            retry_attempts += 1
-            print(f"❌ Attempt {retry_attempts} failed: {e}")
-            if retry_attempts < max_retries:
-                wait_time = 10 * retry_attempts
-                print(f"🔄 Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                print("❌ Starting basic polling as fallback...")
-                try:
-                    bot.polling(none_stop=True, interval=2, timeout=15)
-                except Exception as final_error:
-                    print(f"❌ All methods failed: {final_error}")
-                    time.sleep(60)  # Wait before restart
+            print(f"❌ Bot polling failed: {e}")
+            print("🔄 Auto-restarting bot in 5 seconds...")
+            time.sleep(5)
+            
+            # Force cleanup before restart
+            try:
+                bot.stop_polling()
+            except:
+                pass
+            
+            # Additional cleanup for conflicts
+            try:
+                # Get and clear any pending updates
+                updates = bot.get_updates(timeout=1)
+                if updates:
+                    last_update_id = updates[-1].update_id
+                    bot.get_updates(offset=last_update_id + 1, timeout=1)
+                    print("✓ Cleared pending updates before restart")
+            except:
+                pass
+            
+            print("🔄 Attempting bot restart...")
+            continue
 
 # Set webhook
 def set_webhook():
