@@ -22,8 +22,10 @@ import random
 import datetime
 from flask import Flask, request
 import threading
+import urllib.request
+import urllib.error
 
-# Initialize Flask app for webhook
+# Initialize Flask app for webhook and keep-alive
 app = Flask(__name__)
 
 version = 2
@@ -2001,6 +2003,57 @@ def extract_arg2(arg):
     except:
         return []
 
+# DEPLOYMENT-READY KEEP-ALIVE SYSTEM
+class DeploymentKeepAlive:
+    def __init__(self):
+        self.repl_slug = os.environ.get('REPL_SLUG')
+        self.repl_owner = os.environ.get('REPL_OWNER')
+        
+        if self.repl_slug and self.repl_owner:
+            self.base_url = f"https://{self.repl_slug}.{self.repl_owner}.repl.co"
+        else:
+            self.base_url = "http://localhost:5000"
+        
+        self.running = True
+        print(f"🔄 Keep-alive initialized for: {self.base_url}")
+    
+    def ping_service(self):
+        """Advanced ping with multiple endpoints"""
+        endpoints = ["/", "/health", "/ping", "/status"]
+        success = False
+        
+        for endpoint in endpoints:
+            try:
+                response = urllib.request.urlopen(f"{self.base_url}{endpoint}", timeout=10)
+                if response.getcode() == 200:
+                    print(f"✅ {datetime.datetime.now().strftime('%H:%M:%S')} - Keep-alive ping successful ({endpoint})")
+                    success = True
+                    break
+            except Exception as e:
+                continue
+        
+        if not success:
+            print(f"⚠️ {datetime.datetime.now().strftime('%H:%M:%S')} - All keep-alive pings failed")
+        
+        return success
+    
+    def continuous_keepalive(self):
+        """Deployment-optimized keep-alive loop"""
+        print("🚀 Starting deployment-ready keep-alive system...")
+        
+        while self.running:
+            try:
+                # Ping every 4 minutes for Replit deployment requirements
+                self.ping_service()
+                time.sleep(240)  # 4 minutes
+                
+            except Exception as e:
+                print(f"❌ Keep-alive error: {e}")
+                time.sleep(60)  # Retry in 1 minute on error
+
+# Initialize deployment keep-alive
+deployment_keepalive = DeploymentKeepAlive()
+
 # Webhook route for Telegram
 @app.route(f'/{API_KEY_001}', methods=['POST'])
 def webhook():
@@ -2009,68 +2062,39 @@ def webhook():
     bot.process_new_updates([update])
     return "OK"
 
-# Health check route
+# Essential health check routes for deployment
 @app.route('/')
 def health_check():
     return "Heisenberg Store Bot is running!"
 
-# Bot status route for monitoring
 @app.route('/status')
 def bot_status():
     return {"status": "running", "bot": "Heisenberg Store Bot", "timestamp": time.time()}
 
-# Health check with timestamp
 @app.route('/health')
 def health():
     return {"health": "ok", "uptime": time.time(), "bot_active": True}
 
-# Ping endpoint for external monitoring
 @app.route('/ping')
 def ping():
     return "pong"
 
-# Keep-alive endpoint
 @app.route('/keepalive')
 def keepalive():
     return {"message": "Bot is alive", "timestamp": datetime.datetime.now().isoformat()}
 
-# Keep-alive mechanism to prevent sleep
-def keep_alive():
-    """Keep the app alive by self-pinging"""
-    import urllib.request
-    import urllib.error
-    
-    while True:
-        try:
-            # Self-ping to keep alive
-            repl_slug = os.environ.get('REPL_SLUG')
-            repl_owner = os.environ.get('REPL_OWNER')
-            
-            if repl_slug and repl_owner:
-                url = f"https://{repl_slug}.{repl_owner}.repl.co/"
-                urllib.request.urlopen(url, timeout=10)
-                print("🔄 Keep-alive ping sent")
-            else:
-                # Fallback for local development
-                urllib.request.urlopen("http://localhost:5000/", timeout=10)
-                print("🔄 Local keep-alive ping sent")
-                
-        except Exception as e:
-            print(f"⚠️ Keep-alive ping failed: {e}")
-        
-        # Ping every 5 minutes to prevent sleep
-        time.sleep(300)
-
-# Function to run Flask app
 def run_flask_app():
-    """Run Flask app on port 5000 for deployment"""
-    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
-
-# Function to setup webhook mode for deployment
-def setup_webhook_mode():
-    """Setup webhook mode for reliable deployment"""
+    """Run Flask app optimized for deployment"""
     try:
-        # Set up bot commands menu
+        print("🌐 Starting Flask server on 0.0.0.0:5000 for deployment...")
+        app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
+    except Exception as e:
+        print(f"❌ Flask server error: {e}")
+
+def setup_deployment_bot():
+    """Setup bot for deployment with proper webhook configuration"""
+    try:
+        # Set bot commands menu
         commands = [
             telebot.types.BotCommand("start", "🏪 Open Heisenberg Store"),
             telebot.types.BotCommand("wallet", "💰 Check wallet balance"),
@@ -2078,11 +2102,11 @@ def setup_webhook_mode():
             telebot.types.BotCommand("help", "ℹ️ Get help and info")
         ]
         bot.set_my_commands(commands)
-        print("✓ Bot commands menu set successfully")
+        print("✓ Bot commands menu configured")
     except Exception as e:
         print(f"⚠ Could not set commands menu: {e}")
     
-    # Check if we're in deployment environment
+    # Check deployment environment
     repl_slug = os.environ.get('REPL_SLUG')
     repl_owner = os.environ.get('REPL_OWNER')
     
@@ -2094,8 +2118,8 @@ def setup_webhook_mode():
             time.sleep(1)
             result = bot.set_webhook(url=webhook_url)
             if result:
-                print(f"✓ Webhook set successfully: {webhook_url}")
-                print("✓ Bot is now active in webhook mode - fully deployment ready")
+                print(f"✅ Webhook configured: {webhook_url}")
+                print("✅ Bot ready for deployment - 24/7 operation enabled")
                 return True
             else:
                 print("⚠ Webhook setup failed, falling back to polling")
@@ -2107,74 +2131,44 @@ def setup_webhook_mode():
         print("✓ Development mode detected")
         return False
 
-# Function to run bot in polling mode (fallback)
-def run_polling_mode():
-    """Run bot in polling mode as fallback"""
-    print("🚀 Starting bot in polling mode...")
-    
-    try:
-        # Clear any existing webhooks
-        bot.remove_webhook()
-        time.sleep(2)
-        
-        print("✓ Bot is now active - users can send /start")
-        bot.polling(none_stop=True, interval=1, timeout=20)
-        
-    except Exception as e:
-        print(f"❌ Polling failed: {e}")
-        time.sleep(5)
-        run_polling_mode()  # Restart
-
-# Main bot runner
-def run_bot():
-    """Run the bot with best available method"""
-    print("🚀 Starting Heisenberg Store Bot...")
+def run_bot_deployment():
+    """Run bot with deployment optimizations"""
+    print("🚀 Starting Heisenberg Store Bot for deployment...")
     
     # Try webhook mode first (best for deployment)
-    if setup_webhook_mode():
-        print("✓ Running in webhook mode - no conflicts possible")
-        # In webhook mode, the Flask app handles everything
+    if setup_deployment_bot():
+        print("✓ Running in webhook mode - optimal for 24/7 deployment")
+        # In webhook mode, Flask handles all requests
         while True:
-            time.sleep(60)  # Keep the main thread alive
+            time.sleep(60)  # Keep main thread alive
     else:
-        # Fallback to polling mode
-        run_polling_mode()
-
-# Set webhook
-def set_webhook():
-    # Only set webhook if REPL_SLUG and REPL_OWNER are available (deployment environment)
-    repl_slug = os.environ.get('REPL_SLUG')
-    repl_owner = os.environ.get('REPL_OWNER')
-    
-    if repl_slug and repl_owner:
-        webhook_url = f"https://{repl_slug}.{repl_owner}.repl.co/{API_KEY_001}"
-        try:
-            bot.remove_webhook()
-            time.sleep(1)
-            bot.set_webhook(url=webhook_url)
-            print(f"Webhook set to: {webhook_url}")
-        except Exception as e:
-            print(f"Webhook setup failed: {e}")
-            print("Falling back to polling mode...")
-            bot.remove_webhook()
-    else:
-        print("Development environment detected, using polling mode")
-        bot.remove_webhook()
+        # Fallback to polling mode with error recovery
+        print("🔄 Running in polling mode with auto-restart...")
+        while True:
+            try:
+                bot.remove_webhook()
+                time.sleep(2)
+                print("✅ Bot is now active and responding to all commands")
+                bot.infinity_polling(none_stop=True, interval=1, timeout=20)
+            except Exception as e:
+                print(f"❌ Bot error: {e}")
+                print("🔄 Restarting bot in 10 seconds...")
+                time.sleep(10)
 
 if __name__ == '__main__':
-    print("🚀 Starting Heisenberg Store Bot with 24/7 keep-alive system...")
+    print("🚀 Starting Heisenberg Store Bot with deployment-ready keep-alive...")
     
-    # Start Flask app in a separate thread for deployment
+    # Start Flask server for deployment
     flask_thread = threading.Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
-    print("✓ Flask server started on port 5000")
+    print("✅ Flask server started for deployment")
     
-    # Start minimal keep-alive service only
-    keepalive_thread = threading.Thread(target=keep_alive, daemon=True)
+    # Start deployment keep-alive system
+    keepalive_thread = threading.Thread(target=deployment_keepalive.continuous_keepalive, daemon=True)
     keepalive_thread.start()
-    print("✓ Keep-alive service started")
+    print("✅ Deployment keep-alive system started")
     
-    print("✓ Bot will stay online 24/7 with Flask server running")
+    print("✅ Bot configured for 24/7 deployment operation")
     
     # Start the bot with infinite restart capability
-    run_bot()
+    run_bot_deployment()
