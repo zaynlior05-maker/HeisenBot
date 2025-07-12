@@ -2006,50 +2006,58 @@ def extract_arg2(arg):
 # DEPLOYMENT-READY KEEP-ALIVE SYSTEM
 class DeploymentKeepAlive:
     def __init__(self):
-        self.repl_slug = os.environ.get('REPL_SLUG')
-        self.repl_owner = os.environ.get('REPL_OWNER')
-        
-        if self.repl_slug and self.repl_owner:
-            self.base_url = f"https://{self.repl_slug}.{self.repl_owner}.repl.co"
+        # Detect if running in deployment environment
+        if os.environ.get('REPLIT_DEPLOYMENT'):
+            # In deployment, use the deployment URL
+            self.base_url = f"https://{os.environ.get('REPL_SLUG', 'bot')}.replit.app"
         else:
-            self.base_url = "http://localhost:5000"
+            # In development, use local URL
+            self.base_url = "http://0.0.0.0:5000"
         
         self.running = True
         print(f"🔄 Keep-alive initialized for: {self.base_url}")
     
     def ping_service(self):
-        """Advanced ping with multiple endpoints"""
-        endpoints = ["/", "/health", "/ping", "/status"]
+        """Enhanced ping system for deployment"""
+        endpoints = ["/", "/health", "/ping", "/status", "/keepalive"]
         success = False
         
         for endpoint in endpoints:
             try:
-                response = urllib.request.urlopen(f"{self.base_url}{endpoint}", timeout=10)
-                if response.getcode() == 200:
-                    print(f"✅ {datetime.datetime.now().strftime('%H:%M:%S')} - Keep-alive ping successful ({endpoint})")
+                # Use requests instead of urllib for better error handling
+                response = requests.get(f"{self.base_url}{endpoint}", timeout=15)
+                if response.status_code == 200:
+                    print(f"✅ {datetime.datetime.now().strftime('%H:%M:%S')} - Keep-alive successful")
                     success = True
                     break
-            except Exception as e:
+            except Exception:
                 continue
         
         if not success:
-            print(f"⚠️ {datetime.datetime.now().strftime('%H:%M:%S')} - All keep-alive pings failed")
+            # Try internal ping
+            try:
+                response = requests.get("http://127.0.0.1:5000/", timeout=5)
+                if response.status_code == 200:
+                    print(f"✅ {datetime.datetime.now().strftime('%H:%M:%S')} - Internal keep-alive successful")
+                    success = True
+            except Exception:
+                pass
         
         return success
     
     def continuous_keepalive(self):
-        """Deployment-optimized keep-alive loop"""
-        print("🚀 Starting deployment-ready keep-alive system...")
+        """24/7 deployment keep-alive system"""
+        print("🚀 Starting 24/7 deployment keep-alive system...")
         
         while self.running:
             try:
-                # Ping every 4 minutes for Replit deployment requirements
+                # Ping every 3 minutes to prevent any sleep
                 self.ping_service()
-                time.sleep(240)  # 4 minutes
+                time.sleep(180)  # 3 minutes
                 
             except Exception as e:
                 print(f"❌ Keep-alive error: {e}")
-                time.sleep(60)  # Retry in 1 minute on error
+                time.sleep(30)  # Quick retry on error
 
 # Initialize deployment keep-alive
 deployment_keepalive = DeploymentKeepAlive()
@@ -2084,12 +2092,23 @@ def keepalive():
     return {"message": "Bot is alive", "timestamp": datetime.datetime.now().isoformat()}
 
 def run_flask_app():
-    """Run Flask app optimized for deployment"""
+    """Run Flask app optimized for 24/7 deployment"""
     try:
-        print("🌐 Starting Flask server on 0.0.0.0:5000 for deployment...")
-        app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False, threaded=True)
+        print("🌐 Starting Flask server for 24/7 deployment...")
+        # Enhanced configuration for deployment reliability
+        app.run(
+            host='0.0.0.0', 
+            port=5000, 
+            debug=False, 
+            use_reloader=False, 
+            threaded=True,
+            processes=1
+        )
     except Exception as e:
         print(f"❌ Flask server error: {e}")
+        # Auto-restart Flask on error
+        time.sleep(5)
+        run_flask_app()
 
 def setup_deployment_bot():
     """Setup bot for deployment with proper webhook configuration"""
@@ -2132,28 +2151,37 @@ def setup_deployment_bot():
         return False
 
 def run_bot_deployment():
-    """Run bot with deployment optimizations"""
-    print("🚀 Starting Heisenberg Store Bot for deployment...")
+    """Run bot with deployment optimizations for 24/7 operation"""
+    print("🚀 Starting Heisenberg Store Bot for 24/7 deployment...")
     
-    # Try webhook mode first (best for deployment)
-    if setup_deployment_bot():
-        print("✓ Running in webhook mode - optimal for 24/7 deployment")
-        # In webhook mode, Flask handles all requests
-        while True:
-            time.sleep(60)  # Keep main thread alive
-    else:
-        # Fallback to polling mode with error recovery
-        print("🔄 Running in polling mode with auto-restart...")
-        while True:
-            try:
-                bot.remove_webhook()
-                time.sleep(2)
-                print("✅ Bot is now active and responding to all commands")
-                bot.infinity_polling(none_stop=True, interval=1, timeout=20)
-            except Exception as e:
-                print(f"❌ Bot error: {e}")
-                print("🔄 Restarting bot in 10 seconds...")
-                time.sleep(10)
+    # For deployment, use polling mode which is more reliable for long-running bots
+    print("🔄 Using polling mode for reliable 24/7 operation...")
+    
+    while True:
+        try:
+            # Clear any existing webhooks
+            bot.remove_webhook()
+            time.sleep(3)
+            
+            print("✅ Bot is now active and responding to all commands")
+            print("🔄 Running in infinite polling mode for 24/7 operation")
+            
+            # Use infinity_polling for continuous operation
+            bot.infinity_polling(
+                none_stop=True,
+                interval=0,
+                timeout=30,
+                long_polling_timeout=30,
+                logger_level=logging.INFO,
+                allowed_updates=None,
+                restart_on_change=False
+            )
+            
+        except Exception as e:
+            print(f"❌ Bot polling error: {e}")
+            print("🔄 Auto-restarting bot in 5 seconds...")
+            time.sleep(5)
+            continue
 
 if __name__ == '__main__':
     print("🚀 Starting Heisenberg Store Bot with deployment-ready keep-alive...")
