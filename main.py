@@ -156,8 +156,11 @@ with open(merged_file_path, "w") as merged_file:
 def get_user_balance(user_id):
     """Get user's wallet balance"""
     try:
-        return float(db.get("bal" + str(user_id), 0))
+        balance = db.get("bal" + str(user_id), 0)
+        return float(balance)
     except:
+        # If user doesn't exist, create them with 0 balance
+        db["bal" + str(user_id)] = 0.0
         return 0.0
 
 @bot.message_handler(commands=['send'])
@@ -302,23 +305,28 @@ def admin_topup_command(message):
             bot.reply_to(message, "❌ Amount must be positive.")
             return
         
+        # Get current balance and ensure user exists in database
+        try:
+            current_balance = float(db["bal" + str(user_id)])
+        except:
+            current_balance = 0.0
+            db["bal" + str(user_id)] = 0.0
+        
         # Add balance
-        current_balance = get_user_balance(user_id)
         new_balance = current_balance + amount
         db["bal" + str(user_id)] = new_balance
         
         # Notify admin
         bot.reply_to(
             message,
-            f"✅ BALANCE UPDATED\n\n👤 User ID: {user_id}\n💰 Added: £{amount}\n💳 New Balance: £{new_balance}"
+            f"✅ BALANCE UPDATED\n\n👤 User ID: {user_id}\n💰 Added: £{amount}\n💳 Previous Balance: £{current_balance}\n💳 New Balance: £{new_balance}"
         )
         
-        # Notify user
+        # Notify user with the specific message format requested
         try:
-            bot.send_message(
-                user_id,
-                f"💰 BALANCE UPDATE\n\n✅ £{amount} has been added to your account!\n💳 New Balance: £{new_balance}\n\nThank you for using HeisenbergStore!"
-            )
+            user_message = f"£{amount} has been added to your wallet. The minimum balance required is £200."
+            bot.send_message(user_id, user_message)
+            bot.reply_to(message, f"✅ User notification sent successfully.")
         except Exception as e:
             bot.reply_to(message, f"✅ Balance updated but failed to notify user: {e}")
             
@@ -545,14 +553,11 @@ def handle_keyboard_buttons(message):
         inline_keyboard2.add(btn_500, btn_1000)
         inline_keyboard2.add(btn_menu)
         
-        try:
-            balance = db["bal" + str(message.chat.id)]
-        except:
-            balance = 0
+        current_balance = get_user_balance(message.chat.id)
             
         bot.send_message(
             message.chat.id,
-            f"💰 Your current balance: £{balance}\n\nSelect amount to add to wallet:",
+            f"💰 Your current balance: £{current_balance}\n\nSelect amount to add to wallet:",
             reply_markup=inline_keyboard2,
             parse_mode="Markdown"
         )
@@ -668,10 +673,8 @@ def open_base(message, base):
         )
 
 def open_wallet(message):
-    try:
-        value = db["bal" + str(message.chat.id)]
-    except:
-        db["bal" + str(message.chat.id)] = 0
+    user_id = message.chat.id
+    current_balance = get_user_balance(user_id)
     
     inline_keyboard2 = types.InlineKeyboardMarkup()
     inline_keyboard2.add(btn_70)  # Featured amount
@@ -684,7 +687,7 @@ def open_wallet(message):
     bot.edit_message_text(
         chat_id=message.chat.id,
         message_id=message.message_id,
-        text='🆔ID: <code>' + str(message.chat.id) + '</code>\n🏦Balance: £' + str(db["bal" + str(message.chat.id)]) + "\n🔸Choose amount:",
+        text=f'🆔ID: <code>{user_id}</code>\n🏦Balance: £{current_balance}\n🔸Choose amount:',
         reply_markup=inline_keyboard2,
         parse_mode="HTML"
     )
