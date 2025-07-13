@@ -283,40 +283,79 @@ Message from HeisenbergStore Admin"""
         f"✅ BROADCAST COMPLETE\n\n📤 Sent: {success_count} users\n❌ Failed: {fail_count} users"
     )
 
-@bot.message_handler(commands=['topup'])
-def admin_topup_command(message):
-    """Handle admin balance top-up command - supports both formats"""
+@bot.message_handler(func=lambda message: message.text and message.text.startswith('/topup_') and '_' in message.text)
+def admin_topup_underscore_command(message):
+    """Handle admin balance top-up command with underscore format: /topup_userid_amount"""
     if message.chat.id != 1182433696:  # Admin ID
         bot.reply_to(message, "❌ Access denied. Admin only.")
         return
     
-    # Parse command - handle both /topup_userid_amount and /topup userid amount
+    # Parse command: /topup_userid_amount
     text = message.text.strip()
+    parts = text.split('_')
     
-    # Check if using underscore format
-    if '_' in text:
-        parts = text.split('_')
-        if len(parts) != 3:
-            bot.reply_to(message, "❌ Invalid format.\n\nUsage: /topup_USERID_AMOUNT\nExample: /topup_7120633291_70")
-            return
-        try:
-            user_id = int(parts[1])
-            amount = float(parts[2])
-        except ValueError:
-            bot.reply_to(message, "❌ Invalid user ID or amount.")
-            return
-    else:
-        # Handle space format
-        parts = text.split()
-        if len(parts) != 3:
-            bot.reply_to(message, "❌ Invalid format.\n\nUsage: /topup USERID AMOUNT\nExample: /topup 7120633291 70")
-            return
-        try:
-            user_id = int(parts[1])
-            amount = float(parts[2])
-        except ValueError:
-            bot.reply_to(message, "❌ Invalid user ID or amount.")
-            return
+    if len(parts) != 3:
+        bot.reply_to(message, "❌ Invalid format.\n\nUsage: /topup_USERID_AMOUNT\nExample: /topup_7120633291_70")
+        return
+    
+    try:
+        user_id = int(parts[1])
+        amount = float(parts[2])
+    except ValueError:
+        bot.reply_to(message, "❌ Invalid user ID or amount.")
+        return
+    
+    if amount <= 0:
+        bot.reply_to(message, "❌ Amount must be positive.")
+        return
+    
+    # Get current balance and ensure user exists in database
+    try:
+        current_balance = float(db["bal" + str(user_id)])
+    except:
+        current_balance = 0.0
+        db["bal" + str(user_id)] = 0.0
+    
+    # Add balance
+    new_balance = current_balance + amount
+    db["bal" + str(user_id)] = new_balance
+    
+    # Notify admin
+    bot.reply_to(
+        message,
+        f"✅ BALANCE UPDATED\n\n👤 User ID: {user_id}\n💰 Added: £{amount}\n💳 Previous Balance: £{current_balance}\n💳 New Balance: £{new_balance}"
+    )
+    
+    # Notify user with the specific message format requested
+    try:
+        user_message = f"£{amount} has been added to your wallet. The minimum balance required is £200."
+        bot.send_message(user_id, user_message)
+        bot.send_message(message.chat.id, f"✅ User {user_id} notified successfully.")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"✅ Balance updated but failed to notify user: {e}")
+        
+    # Log admin action
+    notify_admin_activity(1182433696, "Admin", f"💰 Added £{amount} to user {user_id}", f"New balance: £{new_balance}")
+
+@bot.message_handler(commands=['topup'])
+def admin_topup_command(message):
+    """Handle admin balance top-up command with space format: /topup userid amount"""
+    if message.chat.id != 1182433696:  # Admin ID
+        bot.reply_to(message, "❌ Access denied. Admin only.")
+        return
+    
+    # Parse command: /topup userid amount
+    parts = message.text.split()
+    if len(parts) != 3:
+        bot.reply_to(message, "❌ Invalid format.\n\nUsage: /topup USERID AMOUNT\nExample: /topup 7120633291 70")
+        return
+    
+    try:
+        user_id = int(parts[1])
+        amount = float(parts[2])
+    except ValueError:
+        bot.reply_to(message, "❌ Invalid user ID or amount.")
+        return
     
     if amount <= 0:
         bot.reply_to(message, "❌ Amount must be positive.")
@@ -513,13 +552,8 @@ def send_announcement(message):
 
 @bot.message_handler(commands=['userbal'])
 def userbal(message):
-    id = int(extract_arg1(message.text)[0])
-    credit = int(extract_arg1(message.text)[1])
-    password = str(extract_arg1(message.text)[2])
-    if adminpass == password:
-        bot.send_message(int(id), text="✅£" + str(credit - int(db["bal" + str(id)])) + " has been added to your wallet.✅", parse_mode="Markdown")
-        bot.send_message(message.chat.id, text="£" + str(credit) + " has been set to: " + str(id), parse_mode="Markdown")
-    db["bal" + str(id)] = credit
+    """Legacy userbal command - redirects to new topup system"""
+    bot.reply_to(message, "❌ This command is deprecated. Use /topup_USERID_AMOUNT instead.\n\nExample: /topup_7120633291_70")
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
