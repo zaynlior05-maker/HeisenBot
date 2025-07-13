@@ -2158,11 +2158,15 @@ def run_bot_deployment():
     # For deployment, use polling mode which is more reliable for long-running bots
     print("🔄 Using polling mode for reliable 24/7 operation...")
     
-    while True:
+    restart_count = 0
+    max_restarts = 5
+    
+    while restart_count < max_restarts:
         try:
-            # Clear any existing webhooks
+            # Clear any existing webhooks and wait longer
             bot.remove_webhook()
-            time.sleep(3)
+            print("🧹 Cleared webhooks")
+            time.sleep(5)  # Increased wait time
             
             print("✅ Bot is now active and responding to all commands")
             print("🔄 Running in infinite polling mode for 24/7 operation")
@@ -2170,34 +2174,56 @@ def run_bot_deployment():
             # Use infinity_polling for continuous operation
             bot.infinity_polling(
                 none_stop=True,
-                interval=0,
-                timeout=30,
-                long_polling_timeout=30,
-                logger_level=logging.INFO,
+                interval=1,  # Slightly increased interval
+                timeout=20,  # Reduced timeout
+                long_polling_timeout=20,  # Reduced long polling timeout
+                logger_level=logging.WARNING,  # Reduced logging verbosity
                 allowed_updates=None,
                 restart_on_change=False
             )
             
+        except telebot.apihelper.ApiTelegramException as e:
+            if "409" in str(e) or "Conflict" in str(e):
+                print(f"❌ Conflict detected (409): Another bot instance is running")
+                print("🛑 Waiting 30 seconds for other instance to stop...")
+                time.sleep(30)
+                restart_count += 1
+                continue
+            else:
+                print(f"❌ Telegram API error: {e}")
+                time.sleep(10)
+                restart_count += 1
+                continue
         except Exception as e:
             print(f"❌ Bot polling error: {e}")
-            print("🔄 Auto-restarting bot in 5 seconds...")
-            time.sleep(5)
+            print("🔄 Auto-restarting bot in 10 seconds...")
+            time.sleep(10)
+            restart_count += 1
             continue
+    
+    print("❌ Maximum restart attempts reached. Bot stopped.")
+    print("💡 Please manually restart the bot and ensure no other instances are running.")
 
 if __name__ == '__main__':
-    print("🚀 Starting Heisenberg Store Bot with deployment-ready keep-alive...")
+    print("🚀 Starting Heisenberg Store Bot...")
+    
+    # Clear any existing webhooks first
+    try:
+        bot.remove_webhook()
+        print("✅ Cleared any existing webhooks")
+        time.sleep(2)
+    except Exception as e:
+        print(f"⚠️ Could not clear webhooks: {e}")
     
     # Start Flask server for deployment
     flask_thread = threading.Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
-    print("✅ Flask server started for deployment")
+    print("✅ Flask server started")
     
     # Start deployment keep-alive system
     keepalive_thread = threading.Thread(target=deployment_keepalive.continuous_keepalive, daemon=True)
     keepalive_thread.start()
-    print("✅ Deployment keep-alive system started")
+    print("✅ Keep-alive system started")
     
-    print("✅ Bot configured for 24/7 deployment operation")
-    
-    # Start the bot with infinite restart capability
+    # Start the bot with proper error handling
     run_bot_deployment()
