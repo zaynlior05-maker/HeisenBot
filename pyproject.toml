@@ -1,8 +1,9 @@
 [project]
-name = "repl-nix-workspace"
+name = "heisenberg-store-bot"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.11"
+description = "Telegram store bot"
+requires-python = ">=3.11,<4.0"
+
 dependencies = [
     "arg>=0.0.1",
     "bitcoin>=1.1.42",
@@ -17,3 +18,7 @@ dependencies = [
     "requests>=2.32.4",
     "telegram>=0.0.1",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
