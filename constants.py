@@ -1,19 +1,44 @@
 """
 Constants and configuration for ExcelYard Bot
 """
-
 import os
+from dotenv import load_dotenv
 
-# Bot API Configuration - CHANGE THIS TO YOUR BOT TOKEN
-API_KEY_001 = os.getenv('TELEGRAM_BOT_TOKEN', '7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI')
+load_dotenv()
 
-# Admin Configuration - CHANGE THESE TO YOUR DETAILS
-ADMIN_ID = int(os.getenv('ADMIN_ID', '1182433696'))  # Your actual user ID
-adminpass = os.getenv('ADMIN_PASSWORD', 'Stxdyw0rk')
+API_KEY_001 = os.getenv("TELEGRAM_BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+GROUP_CHAT_ID = int(os.getenv("GROUP_CHAT_ID", "0"))
+LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", "0"))
+CHANNEL_LINK = os.getenv("CHANNEL_LINK")
+WALLET_ADDRESS = os.getenv("WALLET_ADDRESS")
 
-# Group Chat Configuration - CHANGE THESE TO YOUR GROUP IDs
-GROUP_CHAT_ID = int(os.getenv('GROUP_CHAT_ID', '-1002563927894'))  # HeisenbergStoreUk group
-LOG_GROUP_ID = int(os.getenv('LOG_GROUP_ID', '-1002563927894'))    # HeisenbergStoreUk group
+missing = [
+    key
+    for key, value in {
+        "TELEGRAM_BOT_TOKEN": API_KEY_001,
+        "ADMIN_ID": ADMIN_ID,
+        "ADMIN_PASSWORD": ADMIN_PASSWORD,
+        "GROUP_CHAT_ID": GROUP_CHAT_ID,
+        "LOG_GROUP_ID": LOG_GROUP_ID,
+        "CHANNEL_LINK": CHANNEL_LINK,
+        "WALLET_ADDRESS": WALLET_ADDRESS,
+    }.items()
+    if value in (None, "", 0)
+]
+
+if missing:
+    print(f"⚠️ Missing environment variables: {', '.join(missing)}")
+else:
+    print("✅ All environment variables loaded successfully.")
+
+try:
+    import telebot
+    bot = telebot.TeleBot(API_KEY_001)
+    print("🤖 Bot initialized successfully!")
+except Exception as e:
+    print(f"❌ Error initializing bot: {e}")
 
 # Payment Configuration
 BITCOIN_RATES = {
