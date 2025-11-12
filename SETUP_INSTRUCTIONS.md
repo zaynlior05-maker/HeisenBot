@@ -3,17 +3,17 @@
 Your bot is **ALMOST READY**! Just need your actual User ID to complete the setup.
 
 ## ✅ What's Already Configured:
-- ✅ Bot Token: `7984635760:AAGS7eDpCnK_EgnqYEMXgJk72avYAQe9pWI`
+- ✅ Bot Token: `8371436909:AAHHtha3kC8b9mNfXk5jpuRW54wfJxtRMXw`
 - ✅ Bot Name: **FULLZ HAVEN**
-- ✅ Bot Username: `@HEISENFULLZHAVENBOT`
-- ✅ Group Chat: `HeisenbergStoreUk` (-1002563927894)
+- ✅ Bot Username: `@FullzHavenUkBot`
+- ✅ Group Chat: `HEISENBERG_CITY://🕹️` (-1003275412781)
 - ✅ Support Username: `@HeisenbergActives`
 - ✅ Web Admin: Username: `admin`, Password: `heisenberg2024`
 
 ## 🔧 What You Need to Do:
 
 ### Step 1: Get Your User ID
-1. Start a chat with your bot: [@HEISENFULLZHAVENBOT](https://t.me/HEISENFULLZHAVENBOT)
+1. Start a chat with your bot: [@FullzHavenUkBot](https://t.me/FullzHavenUkBot)
 2. Send `/start` to your bot
 3. Or use [@userinfobot](https://t.me/userinfobot) - just send any message to it and it will reply with your User ID
 
@@ -37,7 +37,7 @@ ADMIN_ID=YOUR_ACTUAL_USER_ID_HERE
 
 ### Step 3: Test Your Bot
 1. Restart the bot: Stop and start the "Bot Test" workflow
-2. Send `/start` to [@HEISENFULLZHAVENBOT](https://t.me/HEISENFULLZHAVENBOT)
+2. Send `/start` to [@FullzHavenUkBot](https://t.me/FullzHavenUkBot)
 3. You should see the welcome message with menu options
 
 ### Step 4: Access Admin Dashboard
