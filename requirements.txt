@@ -1,0 +1,13 @@
+arg>=0.0.1
+bitcoin>=1.1.42
+block-io>=2.0.6
+flask>=3.1.1
+forex-python>=1.9.2
+numpy>=2.3.1
+openpyxl>=3.1.5
+pandas>=2.3.0
+pytelegrambotapi>=4.27.0
+replit>=4.1.2
+requests>=2.32.4
+telegram>=0.0.1
+python-dotenv>=1.0.1
