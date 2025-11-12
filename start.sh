@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Starting Heisenberg Store Bot..."
-python main.py
+echo "Starting FullzHaven Bot (launcher)..."
+python worker_launcher.py
