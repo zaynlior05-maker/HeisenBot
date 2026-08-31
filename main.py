@@ -1,8 +1,7 @@
-
 import telebot
 from telebot import types
 import openpyxl
-from constants import API_KEY_001, adminpass, ADMIN_ID, GROUP_CHAT_ID
+from constants import API_KEY_001, ADMIN_PASSWORD, ADMIN_ID, GROUP_CHAT_ID
 from telebot import types
 from bitcoin import *
 import pandas
@@ -169,7 +168,7 @@ def send_msg(message):
     msg = str(extract_arg2(message.text)[1])
     password = str(extract_arg2(message.text)[2])
     
-    if adminpass == password:
+    if ADMIN_PASSWORD == password:
         try:
             bot.send_message(id, text=msg, parse_mode="Markdown")
         except:
@@ -540,7 +539,7 @@ def send_announcement(message):
     msg = str(extract_arg2(message.text)[0])
     password = str(extract_arg2(message.text)[1])
     
-    if adminpass == password:
+    if ADMIN_PASSWORD == password:
         keys = db.keys()
         for i in keys:
             time.sleep(0.5)
