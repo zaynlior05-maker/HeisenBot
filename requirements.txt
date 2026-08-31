@@ -1,6 +1,10 @@
-pytelegrambotapi>=4.27.0
-python-dotenv>=1.0.1
-requests>=2.32.4
-flask>=3.1.1
+pyTelegramBotAPI
 openpyxl
 bitcoin
+pandas
+numpy
+forex-python
+requests
+block-io
+flask
+replit
