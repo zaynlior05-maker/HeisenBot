@@ -18,6 +18,7 @@ dependencies = [
     "python-telegram-bot",
     "replit>=4.1.2",
     "requests>=2.32.4",
+    "setuptools",
 ]
 
 [build-system]
