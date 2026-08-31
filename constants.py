@@ -6,13 +6,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY_001 = os.getenv("8751615750:AAFmQNA4MkVYMkwTkQlcamhOsG0NIy0bB58")
+API_KEY_001 = os.getenv("TELEGRAM_BOT_TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
-ADMIN_PASSWORD = os.getenv("Stxdy")
-GROUP_CHAT_ID = int(os.getenv("-1003297925821", "0"))
-LOG_GROUP_ID = int(os.getenv("-5131931314", "0"))
-CHANNEL_LINK = os.getenv("https://t.me/Heisenberglist")
-WALLET_ADDRESS = os.getenv("https://t.me/Heisenberglist")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+GROUP_CHAT_ID = int(os.getenv("GROUP_CHAT_ID", "0"))
+LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", "0"))
+CHANNEL_LINK = os.getenv("CHANNEL_LINK")
+WALLET_ADDRESS = os.getenv("WALLET_ADDRESS")
 
 missing = [
     key
