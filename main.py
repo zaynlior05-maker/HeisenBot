@@ -2,15 +2,12 @@ import telebot
 from telebot import types
 import openpyxl
 from constants import API_KEY_001, ADMIN_PASSWORD, ADMIN_ID, GROUP_CHAT_ID
-from telebot import types
 from bitcoin import *
 import pandas
 from forex_python.bitcoin import BtcConverter
 import requests
-import telegram
 import numpy as np
 import time
-import pandas as pd
 import math
 from replit import db
 import os
